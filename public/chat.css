@@ -1,0 +1,51 @@
+
+#chatelement.leiste			{position: absolute; top:auto;bottom: 0; height:30px; right:0;left:0;z-index:100;overflow:hidden;white-space:nowrap;line-height:30px;}
+#text.leiste 						{ display: inline-block; color:white; position: absolute;top:auto; bottom:0; height:30px; right:0; left:0; z-index:501; white-space: nowrap;}
+#text.leiste>div 					{ display: inline-block; color:white; position: relative;top:auto; bottom:0; height:30px; right:0; left:0; margin: 0px 10px; z-index:500;white-space: nowrap;}
+#chatelement.leiste>div.background {background-color:black; opacity:0.7; position:absolute; top:0; bottom :0; left:0; right:0;}
+
+span.text				{color:white;}
+span.zeit				{color:#0e0e0e; }
+span.time:before		{content:"(";}
+span.time:after		{content:")";}
+#text>div>span.name				{color:#0e0e0e;margin:0px 2px;}
+#text.leiste>div>span.time		{color:#c0c0c0;}
+#text.leiste>div>span.name		{color:#c0c0c0;}
+	
+#chatelement.leiste .chat	               	{ display:none !important; }
+#chatelement.leiste #chatdiv               	{ display:none !important; }
+#chatelement.chat 	.leiste 			    { display:none !important; }
+#chatelement.chat 	.chattext 				{ display:none !important; }
+#chatelement.chat 	#antwort 				{ display:none !important; }
+#chatelement.chat 	#sofort_antwort 		{ display:none !important; }
+body.chat 	#icons 							{ display:none !important; }
+body.chat #antwort 							{ display:none !important; }
+body.chat #sofort_antwort 					{ display:none !important; }
+	
+input{	position:relative; height: 2em; left: 2px; width: 35%; font-size: 14px;	}
+	
+#antwort		{position:absolute; bottom: 30px; right:0px; font-size:100%; background-color: #ffffff; padding:5px; border: 1px solid #c0c0c0; display: inline-block; color: #404040; text-decoration: none; box-shadow: inset 3px 3px 20px #e8e8e8; margin:2px;}	
+#sofort_antwort	{position:absolute; height: 2em; left: 300px; bottom:30px;  
+				/* Firefox */	width: -moz-calc(100% - 300px);
+				/* WebKit */ 	width: -webkit-calc(100% - 300px);
+				/* Opera */  	width: -o-calc(100% - 300px);
+				/* Standard */	width: calc(100% - 300px);
+				font-size: 14px; background-color:#ffffff; z-index:500;	}
+
+/*------------------ chat-ansicht --------------------------------*/
+button.chat		{ position:relative; font-size:100%; background-color: #ffffff; padding:5px; border: 1px solid #c0c0c0; display: inline-block; color: #404040; text-decoration: none; box-shadow: inset 3px 3px 20px #e8e8e8; margin:2px;}
+				
+#header, #footer			{ display: block; top: 0; left: auto; right: 0; bottom: 0; height: 2.5em; background-color: #222; font-size: 120%; line-height: 2em; color: white; font-weight: bold; z-index:501;}
+#header > a:last-child		{ float: right; color: #fff; font-weight: normal; position:relative;}
+#footer						{ top: 2.5em; bottom: auto; height: 2em; width:430px; position:fixed;}
+
+#text.chat	{ position:relative; top: 2.3em; bottom:0px; width:100%; right:0%; 
+			/* Firefox */	height: -moz-calc(100% - 95px);
+			/* WebKit */ 	height: -webkit-calc(100% - 95px);
+			/* Opera */  	height: -o-calc(100% - 95px);
+			/* Standard */	height: calc(100% - 95px);
+			list-style: none; color:white; z-index:500; background-color:gray; overflow-y: scroll;}
+#chatelement.chat	{position:absolute; top:0; bottom:0; left:auto; right:0; height:97%; width: 430px; z-index:500; overflow:hidden;}
+
+#bottom_chat.chat { top:auto;bottom: 0; width:430px; height:2em;background-color: #222;position:fixed;}
+#bottom_chat >img {position:fixed; left:auto; right:0; top:0; }	

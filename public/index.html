@@ -1,0 +1,271 @@
+<html>
+  <head>
+    <title>CoopBoard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <link rel="stylesheet" type="text/css" href="mindmap.css" />
+    <link rel="stylesheet" type="text/css" href="markdown.css" />
+    <link rel="stylesheet" type="text/css" href="chat.css" />
+	<link rel="stylesheet" href="//code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			showProcessingMessages: false,
+			tex2jax: { inlineMath: [['$','$'],['\\(','\\)']] }
+		});
+	</script>
+	<script type="text/javascript" src="MathJax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  </head>
+<body>
+	<!-- ---------------------- Einstellungen ---------------------- -->
+	<div id="settings">
+		<div id="settings_coop">
+			<h1 onclick='$("#settings>div").addClass("hidden"); $(this).parent().toggleClass("hidden");'>Coop-Board</h1>
+			<div onclick="new_board('neues Board',0);">Neues Board erstellen</div>
+			<div class="ADMIN" onclick="copy_board();">Aktuelles Board kopieren</div>
+			<div class="ADMIN">
+				Board importieren<br> 
+				<input type="file" id="importfile" name="importfile" enctype="multipart/form-data" />
+			</div>
+			<div class="NUTZER">
+				<button onclick="board_export()">Exportieren des Boards (JSON)</button>
+			</div>
+			<div class="ADMIN">
+				<button onclick="delete_board()">Löschen des Boards</button>
+			</div>
+		</div>
+
+		<div id='settings_board'>
+			<h1 onclick='$("#settings>div").addClass("hidden"); $(this).parent().toggleClass("hidden");'>Einstellungen</h1>
+			<div>Eigenes Passwort:<br><input type="password" onchange="last_boards.set_passwort(current_board,this.value); boardchange(current_board); this.value='';"></div>
+			<div class="ADMIN">Passwörter setzen:<br>
+				Admin:	<input id="passwd_admin"  type="password" onchange="set_passwd('admin',this.value)" ><button class="submit" onclick="set_passwd('admin', $('#passwd_admin').val() )"></button><br>
+				Nutzer:	<input id="passwd_nutzer" type="password" onchange="set_passwd('nutzer',this.value)"><button class="submit" onclick="set_passwd('nutzer',$('#passwd_nutzer').val() )"></button><br>
+				Gast:	<input id="passwd_gast"   type="password" onchange="set_passwd('gast', this.value)" ><button class="submit" onclick="set_passwd('gast',  $('#passwd_gast').val() )"></button><br>
+			</div>
+			<div class="ADMIN">Name des Boards setzen<br>
+				<input onchange="set_boardname(this.value);">
+			</div>
+			<div class="ADMIN">
+				<div class="flipswitch off" data-on="Sichtbarkeit: offengelegt" data-off="Sichtbarkeit: verborgen"></div>
+			</div>
+			<div class="NUTZER">Gitterabstand wählen:
+				<input id="grid_range" type="range"  min="0" max="240" step="20" onchange="set_grid(this.value)"/>
+				<span id="grid"></span>
+			</div>
+		</div>
+		<div id='special_boards'>
+			<h1 onclick='$("#settings>div").addClass("hidden"); $(this).parent().toggleClass("hidden");'>Besondere Boards</h1>
+		</div>
+		<div id="boards"><h1 onclick='$("#settings>div").addClass("hidden"); $(this).parent().toggleClass("hidden");'>öffentliche Boards</h1></div>
+
+	</div>
+	<div id="settings_button" onclick="$('#settings').toggle();"></div>
+	<!-- -------------------------- Board -------------------------- -->
+
+	<div id="fenster">
+		<div id="background"><img src=""></div>
+		<div id="verschieben">	
+			<div id="board"></div>
+		</div>
+		<div id="icons">
+			<button id="modechange" class="NUTZER" onclick="mode_change();">Block-/Folienmodus</button>
+			<button id ="new_slide" CLASS="NUTZER" onclick="new_slide();">Folie hinzufügen</button>
+			<button id="new_timeline" class="NUTZER">Neue Zeitleiste</button>
+			<button id="new_div" class="NUTZER">Neuer Block</button>
+			<button id="praesentation_next1">Präsentation</button>
+			<img class="button" src="qr.png" id="qrcode_icon" onclick="qrcode_zeigen()">
+		</div>
+		<div id="praesentation_next"><div>vor</div></div>
+		<div id="praesentation_back"><div>rück</div></div>
+		<div id="background_url"></div>
+	</div>
+	<!-- -------------------------------- Chat --------------------- -->
+	<div id="antwort" class="NUTZER leiste" onclick="	$('#antwort').hide();
+	$('#sofort_antwort').show().addClass('activ');"> Antworten</div>
+	<input id="sofort_antwort" class="NUTZER leiste" placeholder="Direktantwort...(Senden und Abbrechen mit Enter)"/>
+		
+	<div class ="NUTZER" id="chatelement">
+		<!-- leistenelemente -->
+		<div class="chat" id="header" onclick="chat_switch();">Coopboard Chat </div>
+		<div class="background leiste">background</div>
+		<div id="text" class="leiste"></div>
+		<!-- Blockansicht -->
+		<div id="footer" class="chat" >
+			<input id="chatname" type="passwort" placeholder='Name' />
+			<input id="chat_input" type="passwort" placeholder="schreibe etwas..." />
+			<button class="chat" onclick="send_message();"> Senden </button>
+		</div>
+		<div id="bottom_chat"class="chat">
+			<img id="mute" src="audio-volume-muted-symbolic.svg" width="32" height="32" alt="Sound Off"/>
+		</div>
+	</div>
+	
+	<!--	gitterraster 
+			<div class="NUTZER">	</div>
+	-->
+
+    <script>
+
+	var users= {};
+	var all_divs = {};
+	var current_board;
+	var board_name;
+	var presentation;
+	var DEBUG = 0;
+	var sound = false;
+	var visible = 0;
+	var grid_distance = 40;
+	var NAME = 0;
+	var ID = 0;
+	
+	// soll private werden:
+	var presentation_following_id = false;
+	var presentation_master = false;
+	var slide_nr = 0;
+	
+	</script>
+	<!-- ---------------------- Skripte laden ---------------------- -->
+    <script src="socket.io/socket.io.js"></script>
+    <script src="jquery.js"></script>
+    <script src="jquery-ui.js"></script>
+    <script src="Markdown.Converter.js"></script>
+    <script src="Markdown.Sanitizer.js"></script>
+    <script src="Markdown.Editor.js"></script>
+    <script src="base64.js"></script>
+    <script src="jquery.ui.touch-punch.min.js"></script>
+    <!--<script src="jquery.touch.js"></script>-->
+    <script src="jquery.knob.js"></script>
+   
+    <script src="spin.min.js"></script>
+    <script src="jquery.spin.js"></script>
+    <script src="jquery.qrcode.min.js"></script>
+    <script src="hilfsfunktionen.js"></script>
+    
+	<script src="qr.js"></script>
+    <script src="jstorage.js"></script>
+    <script src="local-storage.js"></script>
+    <script src="background.js"></script>
+    <script src="div.js"></script>
+    <script src="slides.js"></script>
+
+   
+    <script src="import.js"></script>
+    <script src="mousetrap.min.js"></script>
+    <script src="praesentation.js"></script>
+    <script src="client-server.js"></script>
+    <script src="chat.js"></script>
+    <script src="timeline.js"></script>
+    <script>
+	
+	
+	/*
+	reconnect bei präsentation hinzufügen.
+	bei signalabbruch meldung ausgeben bspw. "Master nicht erreichbar"
+	bei signal wiederherstellung wiederaufnehmen durch nachricht oder automatisch
+	*/
+	$(document).ready(function(){
+			// Framerate für Animationen
+			jQuery.fx.interval = 40;
+		
+			$('#verschieben').draggable({
+					drag:function(){ if (typeof(background.follow=="function")) background.follow();}
+				})
+				.css({left: -($(this).width()-$(window).width())/2, top: -($(this).height()-$(window).height())/2 });
+			$('#icons').draggable({ containment: "parent" });
+			// ---------------------------------------------------------
+			// Verbinder
+			// ---------------------------------------------------------
+			$('<button id="verbindungen" class="NUTZER verbindungen">Verbindungen</button>')
+				.appendTo('#icons')
+				.click2(function(){					
+					if ( $('body').hasClass('verbindungen') ) {
+						$(this).removeClass('aktiv');
+						$('body').removeClass('verbindungen');
+						$('#board .div').removeClass('selected');
+						$('#board canvas.ui-draggable').draggable('destroy');
+					} else {
+						$(this).addClass('aktiv');
+						$('body').addClass('verbindungen');
+						// Die Verbinder auch löschbar machen
+						verbindungen_deletable();
+					}
+				});
+
+			// ---------------------------------------------------------
+			// Zoom out and in
+			// ---------------------------------------------------------
+			$('<button>Alles</button>')
+				.appendTo('#icons')
+				.click2(function(){
+				// Bisher gesehenen Bereich hervorheben
+					console.log("position: "+$('#verschieben').position().left+" und: "+$('#verschieben').position().top);
+					$('<div class="alter_sehbereich"></div>')
+						.appendTo('#board')
+						.css({
+							left:-$('#verschieben').position().left,top:-$('#verschieben').position().top,
+							width: $('#fenster').width(), height:$('#fenster').height()
+						});
+					var zoom = Math.min( $("#fenster").width()/$('#board').width(),$("#fenster").height()/$('#board').height() );
+					$('body')
+						.addClass('zoomed_out');
+					$('#verschieben').css({
+							left:Math.round(($('#fenster').width() -$('#board').width()*zoom)/2),
+							top: Math.round(($('#fenster').height()-$('#board').height()*zoom)/2)})
+						.on("mousedown touchstart",function(e){
+							$('#board div.alter_sehbereich').remove();
+							var z = 1 / Math.max( $("#fenster").width()/$('#board').width(),$("#fenster").height()/$('#board').height() );
+							$('body')
+								.removeClass('zoomed_out');
+							$('#board')
+								.css({
+									"transform":"scale(1)",
+									"transform-origin":" 0 0"
+									});
+							var posX = e.clientX || e.originalEvent.touches[0].pageX;
+							var posY = e.clientY || e.originalEvent.touches[0].pageY;
+							console.log("x: "+posX+" y: "+posY+" fensterbreite: "+$('#fenster').width()/2+" z:"+z);
+							$('#verschieben').css({
+								
+								left: (  -posX ) * z + $('#fenster').width()/2,
+								top:  (  -posY ) * z*($('#fenster').width()/$('#fenster').height()) + $('#fenster').height()/2,
+								
+								})
+							.off('mousedown touchstart')})
+						console.log("zoom: "+zoom);
+						$('#board')
+							.css({"transform":"scale("+zoom+")","transform-origin":" 0 0"} )
+							.on("mousedown touchstart",function(e){
+								draggen();
+							});
+				
+				});
+
+			// ---------------------------------------------------------
+			// Board am Anfang zentrieren
+			// ---------------------------------------------------------
+			$('#verschieben').css({
+					zoom:1,
+					top: Math.round(-$('#board').height()/2+$(window).height()/2),
+					left:Math.round( -$('#board').width()/2+$(window).width()/2)
+				});
+
+			// ---------------------------------------------------------
+			//
+			// Slides
+			//
+			// ---------------------------------------------------------
+			$('<div id=slides></div>').prependTo('#verschieben').css({top:0,left:0, right:0, bottom:0, position:"absolute"});
+			// ---------------------------------------------------------
+
+			board_list();		// freie boards anzeigen
+			
+			// ---------------------------------------------------------
+
+
+	  }); 
+
+
+    </script>
+  </body>
+</html>
+

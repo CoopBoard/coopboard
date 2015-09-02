@@ -1,0 +1,316 @@
+/* ------------------- body -------------------------------------*/
+body     { background-color: silver; font-family:sans-serif; }
+
+body:not(.ADMIN)  .ADMIN  						{display:none !important;}
+body:not(.NUTZER) .NUTZER 						{display:none !important;}
+body:not(.NUTZER) #fenster .handle 				{display:none !important;}
+body:not(.NUTZER) #fenster .ui-resizable-handle {display:none !important;}
+
+body:not(.slidemode) #new_slide 					{display:none !important;}
+body:not(.blockmode) #new_timeline 					{display:none !important;}
+body:not(.blockmode) #new_div 						{display:none !important;}
+body:not(.blockmode) #verbindungen 					{display:none !important;}
+body.slidemode #blockmode 							{display:none !important;}
+body.blockmode #slidemode 							{display:none !important;}
+
+/* ----------------------- Einstellungen -------------------------*/
+#settings        	{ overflow:hidden; position:absolute; top:0; bottom:0; left:0; width: 300px; background-color: darkslategray; z-index:500; box-shadow: 0 0 2em black; overflow-y: scroll; }
+#settings_button 	{ position:absolute; bottom:0; left:0; width: 50px; height:50px; border-radius:0px 50px 0px 0px; background-color: steelblue; z-index:1001; }
+#settings>div>div 	{ background-color: gray; color:white; font-weight:bold; padding: 0.5em 0.5em 0.7em 0.5em; margin-bottom:2px; position:relative; }
+#settings>div.hidden>div { display:none; }
+#settings>div>h1  	{ background-color: #222; color:white; font-weight:bold; padding: 0.5em; margin-bottom:2px; font-size:120%;}
+#settings>div>div>span   {position:absolute; font-weight:normal; font-size:60%; bottom:0; right:0.5em; color:silver; }
+#settings button 	{padding:8px;}
+#settings>div>div>span.info {display:block; position:static;}
+
+/*------------------ switch -------------------------------------*/
+div.flipswitch {
+    border:1px solid black;
+    height:20px;
+    width:250px;
+    position: relative;
+    border-radius: 10px;
+    margin-left:2px;
+    margin-right:2px;
+    background-color:gray;
+    color:white;    
+    border-color:#999999;
+     -moz-transition: all 0.3s ease-in 0s; -webkit-transition: all 0.3s ease-in 0s;
+    -o-transition: all 0.3s ease-in 0s; transition: all 0.3s ease-in 0s; 
+}
+
+div.flipswitch.off{
+	background-color:white;
+	color:gray;
+	text-indent:8px;
+	 -moz-transition: all 0.3s ease-in 0s; -webkit-transition: all 0.3s ease-in 0s;
+    -o-transition: all 0.3s ease-in 0s; transition: all 0.3s ease-in 0s; 
+}
+div.flipswitch::after {
+    width:34px;
+    height:18px;
+    background-color:#EEEEEE;
+    position:absolute;
+    content:" ";
+    left:1px;
+    top:1px;
+    border-radius:10px;
+    border-color:#999999;
+     -moz-transition: all 0.3s ease 0s; -webkit-transition: all 0.3s ease 0s;
+    -o-transition: all 0.3s ease 0s; transition: all 0.3s ease 0s; 
+}
+
+div.flipswitch:not(.off) {
+	/*text-align:right;	*/
+	text-indent:50px;
+}
+
+div.flipswitch.off::after {
+    left:auto;
+    right:1px;
+     -moz-transition: all 0.3s ease 0s; -webkit-transition: all 0.3s ease 0s;
+    -o-transition: all 0.3s ease 0s; transition: all 0.3s ease 0s; 
+}
+/* ---------------- ruler  --------------------------------------*/
+
+
+
+/* ---------------- fenster -------------------------------------*/
+#fenster 		{ position:absolute; overflow:hidden; top:0; bottom:0; left:0; right:0; background-color:white; }
+
+#fenster div.blocked          .handle               { display:none !important; }
+#fenster div.blocked          .ui-resizable-handle  { display:none !important; }
+#fenster div.blocked>div.block 						{ display:block; }
+
+#fenster .handle:hover 				{ opacity:0.2; }
+#fenster .ui-resizable-se			{ opacity:0.2; }
+#fenster .handle, #fenster .ui-resizable-handle { position:absolute; border-radius:30px; background:white; border: 1px solid black; opacity:0.2; z-index:4 !important; width:60px; height:60px; }
+#fenster .handle.oben_links  		{ top:   -30px; left: -30px; }
+#fenster .handle.unten_links 		{ bottom:-30px; left: -30px; }
+#fenster .handle.oben_rechts 		{ top:	 -30px; right:-30px; }
+#fenster .handle.unten_rechts, #fenster .ui-resizable-se { bottom:   -30px; right:-30px; cursor:se-resize; }
+#fenster .handle.remove				{ opacity:0.2; }
+#fenster .handle.remove:hover      	{ background-color:red; opacity:1;}
+#fenster .handle>span 				{ font-weight:bold; position:absolute; }
+#fenster .handle.unten_links>span 	{ bottom:0; }
+
+#fenster .div.selected { border: 1px dashed black border-radius:5px; box-shadow: 0 0 30px blue;}
+#fenster div>div.block { border: 1px solid blue; position: absolute; top:0; bottom:0; right:0; left:0; background-color:white; opacity:0.9; font-size:80%; display:none; z-index:1001;}
+
+#fenster .zeitleiste.selected { border: 1px dashed black border-radius:5px; box-shadow: 0 0 30px blue;}
+/*---------------------------------------------------------------*/
+/* Custom indentations are needed because the length of custom labels differs from
+   the length of the standard labels */
+.custom-size-flipswitch.ui-flipswitch .ui-btn.ui-flipswitch-on {
+    text-indent: -5.9em;
+}
+.custom-size-flipswitch.ui-flipswitch .ui-flipswitch-off {
+    text-indent: 0.5em;
+}
+/* Custom widths are needed because the length of custom labels differs from
+   the length of the standard labels */
+.custom-size-flipswitch.ui-flipswitch {
+    width: 8.875em;
+}
+.custom-size-flipswitch.ui-flipswitch.ui-flipswitch-active {
+    padding-left: 7em;
+    width: 1.875em;
+}
+@media (min-width: 28em) {
+    /*Repeated from rule .ui-flipswitch above*/
+    .ui-field-contain > label + .custom-size-flipswitch.ui-flipswitch {
+        width: 1.875em;
+    }
+}
+
+/*-------------------- board ------------------------------------*/
+
+
+#board,#slides,#verschieben { position:absolute; height: 10000px; width:10000px; left:0; right:0; pointer-events:all; 
+}
+#board						{ border: 1px solid black; box-shadow: 0 0 30px black; }
+#board * {
+	-webkit-user-select: 	none;
+	-moz-user-select: 		none;
+	-ms-user-select: 		none;
+	user-select: 			none;
+}
+
+/* ------------------------- Icons -------------------------------*/
+#icons        { position:absolute; z-index:100; top:0; right:0; }
+#icons .aktiv { box-shadow: inset 0 0 10px black; }
+
+/* ------------------------- Buttons -----------------------------*/
+button, .button					{ position:relative; font-size:100%; background-color: #ffffff; padding:15px; border: 1px solid #c0c0c0; display: inline-block; color: #404040; text-decoration: none; box-shadow: inset 3px 3px 20px #e8e8e8; margin:5px;}
+button:hover, .button:hover		{ background-color: #e0e0e0; box-shadow: inset 3px 3px 10px #404040; }
+button.cancel 	{ padding: 10px; background-color: #ff0000; float: right; box-shadow: inset 0 0 5px black; margin: 0; }
+button.submit 	{ padding: 10px; background-color: #80ff80; float: right; box-shadow: inset 0 0 5px black; margin: 0; }
+button.on 		{ box-shadow: none; background-color:lightgreen; }
+button>span 	{position:absolute; bottom:0; right:0; font-size:60%;}
+
+div.ADMIN >input			{width:65%;}
+/* ------------------divs ---------------------------------------*/
+.zeitleiste:hover 					{z-index:100; }
+.zeitleiste 						{ position:absolute; width:300px; height:200px; z-index:1;  }
+.zeitleiste .handle					{ pointer-events: all;}
+.zeitleiste .ui-resizable-handle	{ pointer-events:all ;}
+.zeitleiste>div.content>hr			{height: 2px; background-color:silver;}
+.zeitleiste>div.content				{overflow:hidden;}
+.timeline>div.content				{border-radius:10px !important;}
+	/* .timeline sind divs an einer timeline/ .zeitleiste ist die zeitleiste an sich */
+
+#slider { margin: 10px; } /* gitterabstand*/
+
+
+body:not(.praesentation) .div:hover {z-index:100; border-width: 1px; border-image:url(images/Jcrop.gif) 1 1 repeat; } 
+.div 								{ position:absolute; width:300px; height:200px; z-index:1; }
+.div .handle						{ pointer-events: all;}
+body:not(.blockmode) .div>.handle,body:not(.blockmode) .div>.ui-resizable-handle				{ display:none !important;}	
+body:not(.blockmode) .zeitleiste>.handle,body:not(.blockmode) .zeitleiste>.ui-resizable-handle	{ display:none !important;}	
+body.blockmode .div>.handle,body.blockmode .div>.ui-resizable-handle 							{ opacity:0.2; }  
+body.blockmode .zeitleiste>.handle,body.blockmode .zeitleiste>.ui-resizable-handle 				{ opacity:0.2; }  
+.div .ui-resizable-handle			{ pointer-events:all ;}
+
+div.ui-dialog 			{ background-color: #f0f0f0; border: 1px solid gray; z-index:99999; padding-top:50px;}
+div.ui-dialog div.ui-dialog-titlebar { font-weight: bold; font-size: 120%; border-bottom: 1px solid gray; background-color: #e0e0e0; padding:0.5em; position: absolute; top:0; left:0; right:0; }
+div.ui-widget-overlay  	{ position:fixed; top:0; bottom:0; left:0; right:0; background-color:black; opacity:0.7; }
+div.ui-dialog button{
+	height: 1em;
+	width: 1em;
+	margin: 0;
+	padding: 0;
+	float: right;
+}
+   
+.content 	       	{ overflow:hidden; position:absolute; top:0px;  left:0; bottom:0; right:0; font-size:100%; z-index: 1000; background-color:#ddd; padding:0.5em; }
+.content:hover		{ overflow-y:scroll; }
+textarea.content	{ 
+	background-color: 	steelblue;
+	white-space: 		nowrap;
+	width:				100%;
+	display:			inline-block;
+	-webkit-box-sizing:	border-box;
+	-moz-box-sizing:	border-box;
+	box-sizing:			border-box;
+}
+.content p, .content h1, .content h2, .content h3 { margin-top:0; margin-bottom:0.4em; }
+.content img { max-width:100%; }
+
+.handle canvas 			{ opacity:0.7; }
+.handle canvas:hover 	{ opacity:1; }
+
+#drop            { background-color:#FF8080; box-shadow: inset 0 0 10px #404040; position:absolute; right:1em; z-index:100000; }
+#drop.drop-hover { background-color:#FF0000; box-shadow: inset 0 0 1em black; color:white; }
+
+/* --------------------------- Slides ----------------------------*/
+.slide {	position:absolute; width:640px;height:480; border:1px dashed silver;overflow:hidden; /*box-shadow:inset 0 0 2em #f0f0f0;*/ }
+body.slidemode .slide {z-index:2;}
+/*body.slidemode .slide:hover {z-index:3;}*/
+.slide:hover { border-image:url(images/Jcrop.gif) 1 1 repeat;} 
+body:not(.slidemode) .slide>.handle,body:not(.slidemode) .slide>.ui-resizable-handle { display:none !important;}	  	
+
+/* ---------------------------- Zoom -----------------------------*/
+.alter_sehbereich { position:absolute; opacity:0.3; background-color:blue; }
+body.zoomed_out    .handle               	{ display:none !important; }
+body.zoomed_out    .ui-resizable-handle		{ display:none !important; }
+body.zoomed_out    #icons 					{ display:none !important; }
+body.zoomed_out    #settings 				{ display:none !important; }
+body.zoomed_out    #settings_button 		{ display:none !important; }
+body.zoomed_out    #slides 					{ display:none !important; }
+body.zoomed_out    .leiste 					{ display:none !important; }
+body.zoomed_out    .chat 					{ display:none !important; }
+body.zoomed_out    #antwort 				{ display:none !important; }
+body.zoomed_out    #sofort_antwort 			{ display:none !important; }
+
+/* ------------------------ Präsentation -------------------------*/
+body.praesentation #board 							{ pointer-events: auto; }
+body.praesentation>#settings 						{ display:none !important;}
+body.praesentation>#settings_button   				{ display:none !important;}
+body.praesentation #fenster .handle           		{ display:none !important;}
+body.praesentation #fenster .ui-resizable-handle	{ display:none !important;}
+body.praesentation #icons 							{ display:none !important;}
+body.praesentation .leiste 							{ display:none !important;}
+body.praesentation .chat 							{ display:none !important;}
+
+body.praesentation #slides 							{ visibility:hidden; } /* display:none -> keine Position ermittelbar */
+
+body.verbindungen #icons>*:not(.verbindungen) 		{ visibility:hidden;}
+body.verbindungen #fenster .handle 					{ display:none !important; }
+body.verbindungen #fenster .ui-resizable-se 		{ display:none !important;}
+
+#praesentation_next,#praesentation_back { width:300px; z-index:1000; position:absolute; top:0;bottom:0; display:none;}
+#praesentation_next {right:0;  }
+#praesentation_back {left:0;   }
+body.praesentation #praesentation_next,body.praesentation #praesentation_back { display: block;}
+#praesentation_next>div,#praesentation_back>div {
+	position:absolute;
+	bottom:0;
+	width:300px;
+	text-align:center;
+	line-height: 300px;
+	font-size:32px;
+	font-weight:bold;
+	color:black;
+	opacity:0.5;
+}
+#praesentation_next>div:before,#praesentation_back>div:before {
+	content:"";
+	position:absolute; opacity:1;
+	left:0;
+	width: 300px;
+	height:300px;
+	border-radius:150px;
+	background-color: #ffffff;
+	z-index:-1;
+}
+
+/* -------------------------- QR-Code ----------------------------*/
+#qr 			{ position:absolute; top:0; right:-100; z-index:500;}
+#qrcode_icon 	{ float:right; padding:0; }
+#qrcode 		{  position:absolute; top:0; bottom:0; left:0;right:0; z-index:10000; text-align:center;}
+#qrcode canvas 	{ padding: 30px; }
+#qrcode a 		{ color:white; display: block;}
+
+/* ------------------------ Hintergrundbild ------------------------- */
+#background {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+}
+#background>img { position:absolute; }
+#background_url { 
+	color: black;
+	bottom: 0;
+	right: 0;
+	font-size: 100%;
+	position: absolute;
+	opacity: 0.7;
+	text-shadow: 1px 1px 1px white;
+}
+
+/* -------------------------- Texteingabe --------------------------- */
+#texteingabe {
+	position:absolute; z-index:1000;
+	left:0;
+	top:0;
+	right:50%;
+	bottom:0;
+	background-color:white;
+}
+#texteingabe>textarea { 
+		pointer-events: auto;
+		background-color: steelblue;
+		white-space: nowrap;
+		display:inline-block;
+		-webkit-box-sizing:border-box;
+		-moz-box-sizing:border-box;
+		box-sizing:border-box;
+		position:absolute;
+		top:50px;
+		left:0;
+		bottom:0;
+		width:100%;
+		font-size:120%;
+}
