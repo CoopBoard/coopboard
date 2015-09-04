@@ -1,0 +1,10 @@
+{
+	"debug":0,
+	"server" : {
+		"port": 8000
+	},
+	"db":{
+	"type": "sqlite3",
+	"name": "mydb.db"
+	}
+}

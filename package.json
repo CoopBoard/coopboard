@@ -1,0 +1,18 @@
+{
+	"name": "Coopboard",
+	"description": "Coopboard is an interactiv Mindmap-tool",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/CoopBoard/coopboard"
+	},
+	"bugs": {
+		"url": "https://github.com/CoopBoard/coopboard/issues"
+	},
+	"keywords": ["coop", "live", "sync", "coopboard"],
+	"dependencies": {
+		"sqlite3": "*",
+		"express": "*",
+		"socket.io":"*",
+		"sha1":"*"
+	}
+}

@@ -1,13 +1,23 @@
-var DEBUG=4;
-
 var express = require('express')
 ,   app = express()
 ,   server = require('http').createServer(app)
-,   conf = require('./config.json')
+,   conf = require('./config.json');
 //, 	fs = require('fs');  // beim Speichern ggf. interessant
 io = require('socket.io')(server);
 
 var sha1 = require('sha1');
+console.log(typeof conf.debug);
+console.log(typeof conf.debug);
+console.log(typeof conf.debug);
+console.log(typeof conf.debug);
+console.log(typeof conf.debug);
+console.log(typeof conf.debug);
+if((typeof conf.debug !== "undefined") ){
+	var DEBUG=conf.debug;
+}
+else{
+	var DEBUG=4;
+}
 
 // ---------------------------------------------------------------------
 // Konstanten für Rechte
@@ -19,7 +29,7 @@ const GUEST  =1;
 const WEEK = 7*24*60*60*1000; 
 const YEAR = 365*24*60*60*1000;
 
-server.listen(conf.port);
+server.listen(conf.server.port);
 app.use(express.static(__dirname + "/public"));
 
 // wenn der Pfad / aufgerufen wird
@@ -32,7 +42,7 @@ app.get('/', function (req, res) {
 // Datenbankeinbindung
 // ---------------------------------------------------------------------
 var sqlite3 = require('sqlite3').verbose();
-var db = new sqlite3.Database('mydb.db');								// Wählt mydb.db als Datenbank aus
+var db = new sqlite3.Database(conf.db.name);								// Wählt mydb.db als Datenbank aus
 var db_interval= 60*5*1000;											
 var db_timer = setInterval(db_save,db_interval);						// db speichern alle 5 Minuten aufrufen
 
