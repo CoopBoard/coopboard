@@ -6,12 +6,7 @@ var express = require('express')
 io = require('socket.io')(server);
 
 var sha1 = require('sha1');
-console.log(typeof conf.debug);
-console.log(typeof conf.debug);
-console.log(typeof conf.debug);
-console.log(typeof conf.debug);
-console.log(typeof conf.debug);
-console.log(typeof conf.debug);
+
 if((typeof conf.debug !== "undefined") ){
 	var DEBUG=conf.debug;
 }
@@ -42,9 +37,9 @@ app.get('/', function (req, res) {
 // Datenbankeinbindung
 // ---------------------------------------------------------------------
 var sqlite3 = require('sqlite3').verbose();
-var db = new sqlite3.Database(conf.db.name);								// Wählt mydb.db als Datenbank aus
+var db = new sqlite3.Database(conf.db.name);		// Wählt Datenbank aus
 var db_interval= 60*5*1000;											
-var db_timer = setInterval(db_save,db_interval);						// db speichern alle 5 Minuten aufrufen
+var db_timer = setInterval(db_save,db_interval);	// db speichern alle 5 Minuten aufrufen
 
 // -------------------- Server-Übersicht -------------------------------
 setInterval(function(){
@@ -203,11 +198,11 @@ var USER = function(id,s,sid) {
 	// --------------------- getter ------------------------------------
 	this.get = {};
 	this.get.board     = function(){ return _board; };
-	this.get.followers = function(){ return _followers; }
-	this.get.slide     = function(){ return _slide; }
-	this.get.name	   = function(){ return _name;}
-	this.get.reconnectID = function(){ return reconnectID;}
-	this.get.sid	   = function(){ return SID; }
+	this.get.followers = function(){ return _followers; };
+	this.get.slide     = function(){ return _slide; };
+	this.get.name	   = function(){ return _name;};
+	this.get.reconnectID = function(){ return reconnectID;};
+	this.get.sid	   = function(){ return SID; };
 	this.get.public_presentation = function(){ 
 		if ( _followers===false ) return false;
 		return true;
@@ -248,12 +243,12 @@ var USER = function(id,s,sid) {
 		}
 		informUser(SID,'username_set',_name);
 		console.log("NAMES: "+JSON.stringify(NAMES)+" eingetragen wurde: "+ _name);
-	}
+	};
 	
 	this.set.sid = function(s){
 		if ( DEBUG>3 ) console.log("socket.id changed from "+SID+" to "+s+".!!!");
 		SID=s;
-	}
+	};
 	
 	this.set.slide  = function(bid,snr) {
 		if ( DEBUG>3 ) console.log('slide_show',{bid:bid,snr:snr});
@@ -264,11 +259,11 @@ var USER = function(id,s,sid) {
 			if ( isUser( _followers[i]) ) { informUser(_followers[i],'slide_shown',SID,bid,snr); }
 			else { U.follower_remove( u[i] ); }
 		}
-	}
+	};
 	
 	this.recover_board = function(){		// zustand vor disconnect herstellen
 			informUser(SID,"board_get",_board);	
-	}
+	};
 
 	
 //	
@@ -293,8 +288,8 @@ var USER = function(id,s,sid) {
 			informUser(SID,'following',false,false);
 		}
 		if (DEBUG>3) console.log(SID + " connects to "+id);
-	}
-	this.set.allow_followers = function() { _followers = []; _slide = 0; }
+	};
+	this.set.allow_followers = function() { _followers = []; _slide = 0; };
 	this.set.deny_followers  = function() { 
 		for (var i=_followers.length-1; i>=0; i--) {
 			if ( isUser(_followers[i]) === true ) {
@@ -302,7 +297,7 @@ var USER = function(id,s,sid) {
 			}
 		}
 		_followers = false;
-	}
+	};
 	this.follower_add = function(id) {
 		if ( typeof(_followers == "object") && _followers.indexOf(id)==-1 ) {
 			_followers.push(id);
@@ -312,7 +307,7 @@ var USER = function(id,s,sid) {
 			informUser(SID,'followers',JSON.stringify(_followers));
 			if (DEBUG>3) console.log(SID+' folgen',_followers );
 		}
-	}
+	};
 	this.follower_remove = function(id) {
 		if ( typeof(_followers == "object") && _followers.indexOf(id)>-1 ) {
 			_followers.splice(_followers.indexOf(id),1);
@@ -323,10 +318,10 @@ var USER = function(id,s,sid) {
 			informUser(SID,'followers',JSON.stringify(_followers));
 			if (DEBUG>3 ) console.log(SID+' folgen',_followers );
 		}
-	}
+	};
 	var followers_drop= function(){
 		
-	}
+	};
 	// -----------------------------------------------------------------
 	// Change boards, disconnect ...
 	// -----------------------------------------------------------------
@@ -349,7 +344,7 @@ var USER = function(id,s,sid) {
 		if (DEBUG>2) console.log("Boardwechsel: "+SID+" ("+bid+")");
 		BOARDS[ bid ].connect(SID,pw,snr);
 		_board = bid;
-	}
+	};
 	// -----------------------------------------------------------------
 	this.disconnect = function(){
 		console.log( 'Disconnect', SID );
@@ -360,7 +355,7 @@ var USER = function(id,s,sid) {
 		BOARDS[ _board ].disconnect( SID );
 		// -------------------------------------------------------------
 		//delete ( USERS[ SID ] );
-	}
+	};
 
 	// -----------------------------------------------------------------
 	// Helpers
@@ -371,7 +366,7 @@ var USER = function(id,s,sid) {
 			io.sockets.socket(f_sid).emit( event, data1, data2, data3, data4 );
 		}
 	}
-}
+};
 
 // creating a new websocket to keep the content updated without any AJAX request
 io.sockets.on('connection', function(socket) {
@@ -617,7 +612,7 @@ var BOARD = function (bid, data,uid){
 			GRID:		GRID
 		});
 		
-	}
+	};
 	//------------------------------------------------------------------
 	this.set = {};
 	//------------------------------------------------------------------
@@ -627,7 +622,7 @@ var BOARD = function (bid, data,uid){
 		freie_boards(1,uid);
 		CHANGED = new Date().getTime();
 		db_save_board( BID );	
-	}
+	};
 	//------------------------------------------------------------------
 	this.set.name = function (name, uid) {				
 		if ( USERS_here[ IDS[uid] ] < ADMIN ) return false;
@@ -642,7 +637,7 @@ var BOARD = function (bid, data,uid){
 			informUser(uid, 'board_renamed',{ id:BID,name:name} );
 		}
 		db_save_board( BID );
-	}
+	};
 	//------------------------------------------------------------------
 	this.set.password = function (a, p, uid) {			
 		if ( USERS_here[ IDS[uid] ] < ADMIN ) return false;
@@ -659,21 +654,21 @@ var BOARD = function (bid, data,uid){
 		}
 		CHANGED = new Date().getTime();	
 		db_save_board( BID );
-	}
+	};
 	//------------------------------------------------------------------
 	this.set.background = function (back, uid) {
 		if ( USERS_here[ IDS[uid] ] < NUTZER ) return false;
 		BACKGROUND = back;
 		CHANGED = new Date().getTime();	
 		informAllUsers('background_set',back);
-	}
+	};
 	//------------------------------------------------------------------
 	this.set.grid = function (dist, uid) {
 		if ( USERS_here[ IDS[uid] ] < NUTZER ) return false;
 		GRID = dist;
 		CHANGED = new Date().getTime();
 		informAllUsers("grid_set",dist);
-	}
+	};
 	// -----------------------------------------------------------------
 	// Users on board
 	// -----------------------------------------------------------------
@@ -697,7 +692,7 @@ var BOARD = function (bid, data,uid){
 		informUser(uid,'background_set',BACKGROUND );
 		informUser(uid,"grid_set",GRID);
 		B.show_users_on_board();
-	}
+	};
 	
 	// -----------------------------------------------------------------
 	this.disconnect = function(uid){
@@ -713,7 +708,7 @@ var BOARD = function (bid, data,uid){
 			}
 	//	}
 		B.show_users_on_board();
-	}
+	};
 	// -----------------------------------------------------------------
 	this.chat = function(data,uid){
 		if ( USERS_here[  IDS[uid]  ] < NUTZER )return false;
@@ -723,19 +718,19 @@ var BOARD = function (bid, data,uid){
 		MESSAGES.push({ zeit: new Date().getTime(), name: data.name || USERS[IDS[uid]].get.name(), text: data.text });
 		informAllUsers('chat', { zeit: new Date().getTime(), name: data.name || USERS[IDS[uid]].get.name(), text: data.text },uid);
 		CHANGED = new Date().getTime();
-	}
+	};
 	this.send_messages = function(uid){
 		if ( USERS_here[  IDS[uid] ] < NUTZER )return false;
 		if (MESSAGES != undefined){
 			informUser(uid,'messages_received',MESSAGES);
 		}
-	}
+	};
 	// -----------------------------------------------------------------
 	this.show_users_on_board = function() {
 		var b = [];
 		for (var o in USERS_here  ) { b.push(o); }
 		//informAllAdmins('users_on_board', JSON.stringify(b) );	!!!
-	}
+	};
 	// -----------------------------------------------------------------
 	// Elements
 	// -----------------------------------------------------------------
@@ -747,7 +742,7 @@ var BOARD = function (bid, data,uid){
 		informAllUsers('element_removed',did,BID);
 		delete DIVS[ did ];
 		CHANGED = new Date().getTime();
-	}
+	};
 	// -----------------------------------------------------------------
 	// Change Element
 	// needs data, "s", "d" or "t" and USER-ID
@@ -794,14 +789,14 @@ var BOARD = function (bid, data,uid){
 		for (var i in d ) { DIVS[ d.id ][ i ] = d[ i ]; }
 		informAllUsers("element_changed",  d );
 		CHANGED = new Date().getTime();
-	}
+	};
 	// Delete Verbinder
 	this.verbinder_delete = function ( uid, vid){
 		var U = USERS[IDS[uid]];
 		if( USERS_here[ IDS[uid] ] <NUTZER) return false;
 		informAllUsers('verbinder_deleted',vid);
 		CHANGED = new Date().getTime();	
-	} 
+	};
 	// -----------------------------------------------------------------
 	// Copy Board
 	// -----------------------------------------------------------------
@@ -821,7 +816,7 @@ var BOARD = function (bid, data,uid){
 		BOARDS[ id ] = new BOARD(id,data,IDS[uid]);
 		db_board_add(id,B.get.save_data());
 		informUser(uid,'board_copied',id);
-	}
+	};
 	// -----------------------------------------------------------------
 	// delete Board
 	// -----------------------------------------------------------------
@@ -836,7 +831,7 @@ var BOARD = function (bid, data,uid){
 			}
 		}
 		freie_boards(1);
-	}
+	};
 	// -----------------------------------------------------------------
 	// Export / Import
 	// -----------------------------------------------------------------
@@ -854,7 +849,7 @@ var BOARD = function (bid, data,uid){
 		// Remove Locks
 		for (var i in b.DIVS) { b.DIVS.blockiert = 0; }
 		informUser(uid, 'board_exported',JSON.stringify( b ) );
-	}
+	};
 	
 	this.import = function (data, uid){
 		B.change(data,uid,1); 
@@ -871,7 +866,7 @@ var BOARD = function (bid, data,uid){
 	// Statusmeldung board saved 	
 	this.save_notification = function (){
 		informAllUsers('chat', { zeit: new Date().getTime(), name:"Statusmitteilung", text: 'board saved!' });
-	}
+	};
 	// -----------------------------------------------------------------
 	// Helpers
 	// -----------------------------------------------------------------
@@ -901,7 +896,7 @@ var BOARD = function (bid, data,uid){
 			}
 		}
 	};
-}
+};
 
 // ---------------------------------------------------------------------
 // Helpers
