@@ -16,6 +16,8 @@ Than you can do the following:
 ```sh
 $ git clone https://github.com/CoopBoard/coopboard coopboard
 $ cd coopboard
+$ git submodule init
+$ git submodule update
 $ npm install
 ```
 In addition you need to initialize the datebase at first time:
@@ -25,4 +27,10 @@ $ node init_db.js
 To run the aktual server:
 ```sh
 $ node server.js
+```
+To update the  server:
+```sh
+$ git pull
+$ git submodule init
+$ git submodule update
 ```
