@@ -1,5 +1,4 @@
 
-//var socket = io.connect('/');
 var socket = io();
 
 // ---------------------------------------------------------------------
@@ -200,8 +199,7 @@ socket.on('board_changed',function(id,name,recht,snr){
 
 socket.on('board_exported', function(data){
 	if (DEBUG <4) console.log(data);
-	var url = "data:application/octet-stream;base64," + Base64.encode(data);
-	window.open(url,'_blank');
+	download(Base64.encode(data), new Date()+".json", "application/json");
 });
 
 socket.on('board_renamed', function(data){
