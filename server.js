@@ -71,14 +71,14 @@ setInterval(function(){
 //var boards = {}; // {"1":{all_divs:{},name:"gfhjk", sichtbar:1, aenderung:0, hintergrund:"" ,passwort:{admin:"",nutzer:"",gast:""}, blockiert:{}} };
 var BOARDS = {};
 
-var spezial_boards_path = path.join(__dirname, "spezial_boards");
+var special_boards_path = path.join(__dirname, "special_boards");
 var	SPECIAL_BOARDS = {};
 
-var spezialboards_files =fs.readdirSync(spezial_boards_path);
-for(var i in spezialboards_files){// files may not contain special characters
-	SPECIAL_BOARDS[spezialboards_files[i]] = JSON.parse(fs.readFileSync(path.join(__dirname, "spezial_boards", spezialboards_files[i]), 'utf8'));
-	SPECIAL_BOARDS[spezialboards_files[i]]['PASSWORD'] = {"a":1,"n":1,"g":null};
-	SPECIAL_BOARDS[spezialboards_files[i]]['NAME'] = spezialboards_files[i];
+var specialboards_files =fs.readdirSync(special_boards_path);
+for(var i in specialboards_files){// files may not contain special characters
+	SPECIAL_BOARDS[specialboards_files[i]] = JSON.parse(fs.readFileSync(path.join(__dirname, "special_boards", specialboards_files[i]), 'utf8'));
+	SPECIAL_BOARDS[specialboards_files[i]]['PASSWORD'] = {"a":1,"n":1,"g":null};
+	SPECIAL_BOARDS[specialboards_files[i]]['NAME'] = specialboards_files[i];
 }
 
 // Names
