@@ -199,7 +199,7 @@ socket.on('board_changed',function(id,name,recht,snr){
 
 socket.on('board_exported', function(data){
 	if (DEBUG <4) console.log(data);
-	download(Base64.encode(data), new Date()+".json", "application/json");
+	download(data, new Date()+".json", "application/json");
 });
 
 socket.on('board_renamed', function(data){

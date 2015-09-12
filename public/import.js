@@ -6,11 +6,11 @@ function readFile (evt) {
 	var files = evt.target.files;
 	var file = files[0];      
 	var reader = new FileReader();
-	if (file.type==""){												// JSON import
+	if (file.type=="application/json"){												// JSON import
 		reader.onload = function() {
 			console.log(this.result);            
 			set_all_divs( JSON.parse(this.result));
-		}
+		};
 	}
 	else {
 		alert ("Datentyp nicht importierbar");
