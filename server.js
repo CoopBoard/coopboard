@@ -1,11 +1,14 @@
 var express = require('express');
 var app = express();
 var server = require('http').createServer(app);
-var conf = require('./config.json');
-var path = require("path");
-var fs = require("fs");
-
 io = require('socket.io')(server);
+conf = require('./config.json');
+path = require("path");
+fs = require("fs");
+events = require("events");
+
+require('./plugin.js');
+plugin.emit('init');
 
 var sha1 = require('sha1');
 
