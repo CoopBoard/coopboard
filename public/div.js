@@ -301,8 +301,8 @@ var div = function( id, leiste ) {
 					// Positionieren der Drehregler
 					var w=$(this).width();
 					$(this).children('div').each(function(i,o){
-							$(o).css({ display:"inline-block", position:"absolute", top: -($(o).width()-w)/2, left:-($(o).width()-w)/2});
-						});
+						$(o).css({ display:"inline-block", position:"absolute", top: -($(o).width()-w)/2, left:-($(o).width()-w)/2});
+					});
 				}
 			});
 		// -------------------------------------------------------------
@@ -571,13 +571,14 @@ function new_div(TIMELINE){
 	if (TIMELINE == undefined){
 		socket.emit('element_change',JSON.stringify( {
 			id:"d",
-			content:Base64.encode("Standardtext"),
+			content:Base64.encode(""),
 			pos:{ 
-				top:  Math.round( -$('#verschieben').position().top +$(window).height()/2-50 ),
-				left: Math.round( -$('#verschieben').position().left+$(window).width() /2-100 )
+				top:  Math.round((Math.round( (-$('#verschieben').position().top) +$(document).height()/2 ))/grid_distance)*grid_distance,
+				left: Math.round((Math.round( (-$('#verschieben').position().left)+$(window).width() /2 ))/grid_distance)*grid_distance
+ 
 			},
-			hoehe:100,
-			breite:200,
+			hoehe:grid_distance*2,
+			breite:grid_distance*2,
 			farbe:[221,221,221],
 			textcolor:[0,0,0],
 			fontsize: 18,
@@ -644,4 +645,5 @@ function verbindungen_deletable(){
 		
 		
 }
+
 
