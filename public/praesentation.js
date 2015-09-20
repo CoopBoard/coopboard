@@ -18,7 +18,7 @@ var _presentation = function(){
 		.appendTo('#settings_coop');
 	var button_open = $('<button>offene Präsentation</button>')
 		.appendTo(menu)
-		.click( function (){
+		.click2( function (){
 			$( button_open ).toggleClass('on');
 			P.open();
 		});
@@ -26,6 +26,9 @@ var _presentation = function(){
 	// -----------------------------------------------------------------
 	this.get = {};
 	this.get.following = function(){ return _following; }
+	// -----------------------------------------------------------------
+	this.set = {};
+	this.set.following = function (f){ _following = f; }
 	// -----------------------------------------------------------------
 	this.open = function(a,modus,snr) {
 		if (modus!="pm"){	//alte funktion
@@ -37,9 +40,10 @@ var _presentation = function(){
 			open_presentation( $( button_open ).hasClass('on') );
 		}
 		else{				// reconnect
-			open_presentation(true);
-			slide_nr = snr;
-			P.show_slide(snr);
+			if (snr==undefined) snr=0;
+			open_presentation(true,"reconnect",snr);
+			//slide_nr = snr;
+			//P.show_slide(snr);
 		}
 	}
 	// -----------------------------------------------------------------
@@ -169,7 +173,6 @@ var _presentation = function(){
 				},{
 					easing: "linear",
 					progress:function(a,b,c){
-						//console.log({a:a,b:b,c:c});
 						board.css({
 							"transition":"none",
 							"transform-origin":"0 0 0",
@@ -208,3 +211,27 @@ var _presentation = function(){
 		}
 	}
 };
+
+function slide_shown(uid,bid,snr){
+	if (DEBUG >3) console.log('show_slide '+uid+" "+bid+" "+snr);
+	if ( uid != presentation.get.following() ) return false;
+	if ( bid != current_board ) { boardchange( bid ); return false; }
+	presentation.show_slide( snr );	
+}
+
+function followers(data){
+	presentation.followers(data);
+	followers = data;
+}
+
+function following_set(uid){	// wiederverbinden mit 'verlorener presentation'
+	presentation.follow_presentation( uid );
+	presentation.controlls( true );
+}
+
+function following(bid,uid,snr,name){
+	if ( current_board != bid && bid !== false ) boardchange( bid );
+	if ( current_board == bid && bid !== false ) presentation.show_slide( snr );
+	if ( bid == false && presentation.get.following() !== false ) { presentation.follow_presentation(false); }
+}
+

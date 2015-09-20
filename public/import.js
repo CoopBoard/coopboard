@@ -6,11 +6,11 @@ function readFile (evt) {
 	var files = evt.target.files;
 	var file = files[0];      
 	var reader = new FileReader();
-	if (file.type=="application/json"){												// JSON import
+	if (file.type==""){												// JSON import
 		reader.onload = function() {
 			console.log(this.result);            
 			set_all_divs( JSON.parse(this.result));
-		};
+		}
 	}
 	else {
 		alert ("Datentyp nicht importierbar");
@@ -45,9 +45,9 @@ function set_all_divs( tmp_board){
 	}
 	// Neue elemente und veränderungen einfügen
 	for (var neu in tmp_board.DIVS){							// neue mit alten elementen vergleichen
-		vorhanden = 0;													// prüft ob element genauso bereits vorhanden
+		vorhanden = 0;											// prüft ob element genauso bereits vorhanden
 		var tmp = tmp_board.DIVS[neu];
-		var typ_tmp = neu[0];												// "d", "t" oder "s"
+		var typ_tmp = neu[0];									// "d", "t" oder "s"
 	
 		for (var alt in all_divs ){
 			var a=all_divs[alt];
@@ -84,7 +84,7 @@ function set_all_divs( tmp_board){
 					){	vorhanden = 1; }
 				}
 			}	
-		if (vorhanden == 0)										//zu den aenderungen hinzufügen
+		if (vorhanden == 0)									//zu den aenderungen hinzufügen
 			anders.push(tmp);
 	}
 	
@@ -92,7 +92,7 @@ function set_all_divs( tmp_board){
 	
 	socket.on('div_set',function(){							// übertragen
 	var tmp = anders.shift();
-	//console.log(anders);
+	
 		if (tmp == undefined){ verbinder_set(); return;} 	// wenn kein weiteres element da, signal an server zum verbinder uebertragen
 		else if (tmp.id[0]=="d"){
 			console.log('div_import');
@@ -120,15 +120,15 @@ function set_all_divs( tmp_board){
 				blockiert:0
 			}));
 		}
-		else if(tmp.id[0]=="t"){
+		else if(tmp.id[0]=="t"){	//timeline konstanten eingefügt
 			console.log('timeline_import');
 			socket.emit('element_import',JSON.stringify({
 				id:tmp.id,
 				content:tmp.content,
 				pos:tmp.pos,
-				hoehe:tmp.hoehe,
+				hoehe:50,
 				breite:tmp.breite,
-				fontsize:tmp.fontsize,
+				fontsize:18,
 				canvas:tmp.canvas,
 				contained_divs:tmp.contained_divs,
 				blockiert:0

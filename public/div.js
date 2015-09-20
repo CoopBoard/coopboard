@@ -1,19 +1,8 @@
 $('#new_div')
 .click2(function(){ 	
 	new_div();
-}); /*
-.on("mousedown touchstart",function(){
-	if ( isClicked(this)) return false;
-	new_div();
-});*/
-// format in base64 ändern:
-function change_content(){
-	for (var d in all_divs){
-		if (d[0] == 'd'){
-			all_divs[d].change_content();
-		}
-	}
-}
+}); 
+
 
 var div = function( id, leiste ) {
 	var canvas = {}; // Hier werden alle Verbindungen drin gespeichert
@@ -308,13 +297,7 @@ var div = function( id, leiste ) {
 		// -------------------------------------------------------------
 		// Positionsaenderung (linke obere Ecke)
 		// -------------------------------------------------------------
-	/*	if (timeline == undefined){
-			var containment_area = "parent";
-		}else {
-			var l = all_divs[timeline];
-			var containment_area=[l.get.pos()[0],l.get.pos()[1]-20,l.get.pos()[0]+l.get.breite()/2,l.get.pos()[1]+20];
-			//var containment_area=[0,0,100,0];
-		}*/
+
 			obj.draggable({
 				//containment: containment_area,					
 				containment: "parent",
@@ -353,7 +336,6 @@ var div = function( id, leiste ) {
 		// -------------------------------------------------------------
 		// Konvertierungsfunktion	
 		// -------------------------------------------------------------
-		//var convert = new Markdown.getSanitizingConverter().makeHtml; //erzeugt Markdown to Html Konvertierfunktion
 		var convert = new Markdown.Converter().makeHtml; //erzeugt Markdown to Html Konvertierfunktion
 		// -------------------------------------------------------------
 		// Groessenaenderung  (rechte untere Ecke)
@@ -362,7 +344,6 @@ var div = function( id, leiste ) {
 			handles: 'se',
 			minWidth: 50,				
 			minHeight:30,
-			//grid:[grid_distance,grid_distance],
 			resize: function( event, ui ) {
 				if (grid_distance >0){
 					ui.size.width  = ui.size.width  - ui.size.width % grid_distance;
@@ -401,9 +382,6 @@ var div = function( id, leiste ) {
 			return O;
 		}
 		this.set.content 	= function (msg) { 
-			//content = msg; 						// Merken des Quelltexts
-			//content_obj.html( convert(msg) ); 	// Content in HTML konvertiert anzeigen
-			
 			content = Base64.decode(msg); 						// Merken des Quelltexts
 			content_obj.html( convert(Base64.decode(msg)) ); 	// Content in HTML konvertiert anzeigen
 			Tex.Init(content_obj[0]);
@@ -554,7 +532,6 @@ var div = function( id, leiste ) {
 	// Anpassungen durch Timeline	
 	if (TIMELINE != undefined) { 
 		obj.addClass('timeline');					// markiert divs, die nur zur Leiste gehören (Jahreszahlen, etc..)
-		//O.add_canvas(TIMELINE);						// verbinder zur Timeline automatisch setzen
 		all_divs[TIMELINE].add_canvas(O.id);
 		all_divs[TIMELINE].add_div(O.id);
 	}
@@ -578,7 +555,7 @@ function new_div(TIMELINE){
  
 			},
 			hoehe:grid_distance*2,
-			breite:grid_distance*2,
+			breite:grid_distance*3,
 			farbe:[221,221,221],
 			textcolor:[0,0,0],
 			fontsize: 18,
@@ -646,4 +623,11 @@ function verbindungen_deletable(){
 		
 }
 
-
+// format in base64 ändern:
+function change_content(){
+	for (var d in all_divs){
+		if (d[0] == 'd'){
+			all_divs[d].change_content();
+		}
+	}
+}

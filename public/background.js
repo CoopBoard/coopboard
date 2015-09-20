@@ -107,3 +107,9 @@ var _background = function(url,s){
 };
 // ---------------------------------------------------------------------
 var background=new _background('C#ffffff');
+
+function background_set(bild){
+	if (DEBUG>4) console.log(bild);
+	background=new _background(bild);
+	if ( bild[0]=="I" ) $('#input_background').val(bild.substr(1));
+}

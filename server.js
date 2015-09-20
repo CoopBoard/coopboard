@@ -13,15 +13,13 @@ if((typeof conf.debug !== "undefined") ){
 	var DEBUG=conf.debug;
 }
 else{
-	var DEBUG=10;
+	var DEBUG = 10;
 	debug_log(10,"debug level was not set in config.json");
 }
-
-
 // ---------------------------------------------------------------------
 // Konstanten für Rechte
-const ADMIN =3;
-const NUTZER=2;
+const ADMIN  =3;
+const NUTZER =2;
 const GUEST  =1;
 
 // Zeitkonstanten
@@ -79,6 +77,7 @@ for(var i in specialboards_files){// files may not contain special characters
 	SPECIAL_BOARDS[specialboards_files[i]] = JSON.parse(fs.readFileSync(path.join(__dirname, "special_boards", specialboards_files[i]), 'utf8'));
 	SPECIAL_BOARDS[specialboards_files[i]]['PASSWORD'] = {"a":1,"n":1,"g":null};
 	SPECIAL_BOARDS[specialboards_files[i]]['NAME'] = specialboards_files[i];
+	SPECIAL_BOARDS[specialboards_files[i]]['VISIBILITY'] = 0;
 }
 
 // Names
@@ -154,8 +153,8 @@ function db_board_delete(id){
 // ---------------------------------------------------------------------
 // Hilfsfunktionen
 // ---------------------------------------------------------------------
-// return random name, which is still free
 
+// return random name, which is still free
 function set_username (){
 	var i=0;
 	var u_names=[];
@@ -217,11 +216,11 @@ var USER = function(id,s,sid) {
 	// --------------------- getter ------------------------------------
 	this.get = {};
 	this.get.board     = function(){ return _board; };
-	this.get.followers = function(){ return _followers; };
-	this.get.slide     = function(){ return _slide; };
-	this.get.name	   = function(){ return _name;};
-	this.get.reconnectID = function(){ return reconnectID;};
-	this.get.sid	   = function(){ return SID; };
+	this.get.followers = function(){ return _followers; }
+	this.get.slide     = function(){ return _slide; }
+	this.get.name	   = function(){ return _name;}
+	this.get.reconnectID = function(){ return reconnectID;}
+	this.get.sid	   = function(){ return SID; }
 	this.get.public_presentation = function(){ 
 		if ( _followers===false ) return false;
 		return true;
@@ -262,12 +261,12 @@ var USER = function(id,s,sid) {
 		}
 		informUser(SID,'username_set',_name);
 		debug_log(4,"NAMES: "+JSON.stringify(NAMES)+" eingetragen wurde: "+ _name);
-	};
+	}
 	
 	this.set.sid = function(s){
 		debug_log(4,"socket.id changed from "+SID+" to "+s+".!!!");
 		SID=s;
-	};
+	}
 	
 	this.set.slide  = function(bid,snr) {
 		debug_log(3,'slide_show '+ JSON.stringify({bid:bid,snr:snr}));
@@ -275,40 +274,44 @@ var USER = function(id,s,sid) {
 		if ( _followers == false ) return false;
 		var u = _followers;
 		for (var i=0; i<_followers.length; i++ ) {
-			if ( isUser( _followers[i]) ) { informUser(_followers[i],'slide_shown',SID,bid,snr); }
+			if (USERS[_followers[i] ]!=undefined){
+				var s=USERS[_followers[i] ].get.sid();
+				if ( isUser( s) ) { 
+					informUser(s,'slide_shown',SID,bid,snr);
+				}
+			}
 			else { U.follower_remove( u[i] ); }
 		}
-	};
+	}
 	
 	this.recover_board = function(){		// zustand vor disconnect herstellen
-			informUser(SID,"board_get",_board);	
-	};
-
+			informUser(SID,"board_recovered",_board);		
+	}
 	
-//	
-// PRÄSENTATION ALS EXTRAOBJEKT AUSGLIEDERN UND MASTER ID SPEICHERN
-//
-
 	// -----------------------------------------------------------------
 	// follow presentations 
 	// -----------------------------------------------------------------
 	this.set.following = function(id) {
 		// ggf. von alter Präsentation trennen
-		if (_following != false && isUser(_following) ) {
-			USERS[_following].follower_remove(SID);
+		for (var j in IDS){
+			if (IDS[j]==_following){
+				if (_following != false && isUser(j) ) {
+					USERS[_following].follower_remove(reconnectID);
+				}
+			}
 		}
 		// ggf. mit neuer Präsentation verbinden
 		if ( id != false && isUser(id) ) {
-			USERS[id].follower_add(SID);
-			_following = id;
-			informUser(SID,'following',USERS[id].get.board(),id,USERS[id].get.slide(),BOARDS[ USERS[id].get.board()].get.name() );
+			USERS[IDS[id]].follower_add(SID);
+			_following = IDS[id];
+			informUser(SID,'following',USERS[IDS[id]].get.board(),IDS[id],USERS[IDS[id]].get.slide(),BOARDS[ USERS[IDS[id]].get.board()].get.name() );
 		} else {
 			_following = false;
 			informUser(SID,'following',false,false);
 		}
 		debug_log(3,SID + " connects to "+id);
-	};
-	this.set.allow_followers = function() { _followers = []; _slide = 0; };
+	}
+	this.set.allow_followers = function() { _followers = []; _slide = 0; }
 	this.set.deny_followers  = function() { 
 		for (var i=_followers.length-1; i>=0; i--) {
 			if ( isUser(_followers[i]) === true ) {
@@ -316,31 +319,39 @@ var USER = function(id,s,sid) {
 			}
 		}
 		_followers = false;
-	};
+	}
 	this.follower_add = function(id) {
-		if ( typeof(_followers == "object") && _followers.indexOf(id)==-1 ) {
-			_followers.push(id);
+		//if ( typeof(_followers == "object") && _followers.indexOf(id)==-1 ) {
+			_followers.push(IDS[id]);
 			for (var i=0; i< _followers.length; i++) {
-				if ( isUser(_followers[i]) === false ) { _followers.splice(i,1); }
+				for (var j in IDS){
+					if (IDS[j]==_followers[i]){
+						if ( isUser(j) === false ) { _followers.splice(i,1);}
+					}
+				}
 			}
 			informUser(SID,'followers',JSON.stringify(_followers));
 			debug_log(3,SID+' folgen '+ _followers );
-		}
-	};
+		//}
+	}
 	this.follower_remove = function(id) {
-		if ( typeof(_followers == "object") && _followers.indexOf(id)>-1 ) {
+		if ( _followers != undefined && typeof(_followers) == "object" && _followers.indexOf(id)>-1 ) {
 			_followers.splice(_followers.indexOf(id),1);
 			// 
 			for (var i=0; i< _followers.length; i++) {
-				if ( isUser(_followers[i]) === false ) { _followers.splice(i,1); }
+				for (var j in IDS){
+					if (IDS[j]==_followers[i]){
+						if ( isUser(j) === false ) { _followers.splice(i,1);}
+					}
+				}
 			}
 			informUser(SID,'followers',JSON.stringify(_followers));
 			debug_log(3,SID+' folgen '+_followers );
 		}
-	};
+	}
 	var followers_drop= function(){
 		
-	};
+	}
 	// -----------------------------------------------------------------
 	// Change boards, disconnect ...
 	// -----------------------------------------------------------------
@@ -358,23 +369,34 @@ var USER = function(id,s,sid) {
 		// -------------------------------------------------------------
 		// Handle Presentations
 		var snr = false;
-		if ( _following != false && isUser(_following) ) snr = USERS[ _following ].get.slide();
+		if ( _following != false){
+			for (var j in IDS){
+				if (IDS[j]==_following){
+					if ( isUser(j) ) snr = USERS[ _following ].get.slide();
+				}
+			}
+		}
 		// -------------------------------------------------------------
 		debug_log(2,"Boardwechsel: "+SID+" ("+bid+")");
 		BOARDS[ bid ].connect(SID,pw,snr);
 		_board = bid;
-	};
+		// falls reconnect mit laufender presentation
+		if (_followers != false)
+			informUser(SID,"presentation_reconnected");
+	}
 	// -----------------------------------------------------------------
 	this.disconnect = function(){
 		debug_log(1, 'Disconnect', SID );
 		// -------------------------------------------------------------
-		T.set.following(false);
-		T.set.deny_followers();
+		//T.set.following(false);
+		//T.set.deny_followers();
+
 		// -------------------------------------------------------------
 		BOARDS[ _board ].disconnect( SID );
 		// -------------------------------------------------------------
+		delete IDS[SID];
 		//delete ( USERS[ SID ] );
-	};
+	}
 
 	// -----------------------------------------------------------------
 	// Helpers
@@ -385,7 +407,7 @@ var USER = function(id,s,sid) {
 			io.sockets.socket(f_sid).emit( event, data1, data2, data3, data4 );
 		}
 	}
-};
+}
 
 // creating a new websocket to keep the content updated without any AJAX request
 io.sockets.on('connection', function(socket) {
@@ -397,18 +419,11 @@ io.sockets.on('connection', function(socket) {
 	informUser(socket.id, 'your_id', socket.id);
 	informUser(socket.id, 'special_boards', SPECIAL_BOARDS);
 	// öffentliche Präsentationen anzeigen
-	public_presentations();
+	public_presentations(1);
 	
 	// Statusmitteilung im Chat
-	informUser(socket.id,'chat', { zeit: new Date().getTime(), name:"Statusmitteilung", text: 'Mit dem Server verbunden!' });	
+	informUser(socket.id,'message_added', { zeit: new Date().getTime(), name:"Statusmitteilung", text: 'Mit dem Server verbunden!' });	
 
-	// -----------------------------------------------------------------
-	// Boards administrieren
-	// -----------------------------------------------------------------
-	socket.on('board_add',function(){
-		var bid = sha1( socket.id + new Date().getTime()).substr(3,16);
-		BOARDS[ bid ] = new BOARD(bid,"new",socket.id);
-	});	
 
 	// -----------------------------------------------------------------
 	//Board Events
@@ -420,94 +435,76 @@ io.sockets.on('connection', function(socket) {
 	socket.on("password_set",  function( data ){ BOARDS[ USERS[ IDS[socket.id] ].get.board() ].set.password(data[0],data[1],socket.id); });
 	socket.on('visibility_set',function( data ){ BOARDS[ USERS[ IDS[socket.id] ].get.board() ].set.visibility(data,socket.id); });
 	socket.on('grid_set',	   function( data ){ BOARDS[ USERS[ IDS[socket.id] ].get.board() ].set.grid(data,socket.id); });
-	//Change Events
-	socket.on('background_set',function( back ){ BOARDS[ USERS[ IDS[socket.id] ].get.board() ].set.background( back, socket.id ); });
-	socket.on('bname_set',     function( data ){ BOARDS[ USERS[ IDS[socket.id] ].get.board() ].set.name(data,socket.id); });
-	socket.on('chat', 		   function( data ){ BOARDS[ USERS[ IDS[socket.id] ].get.board() ].chat(data,socket.id);});
-	socket.on("element_change",function( data ){ BOARDS[ USERS[ IDS[socket.id] ].get.board() ].change(data,socket.id);});
-	socket.on("element_import",function( data ){ BOARDS[ USERS[ IDS[socket.id] ].get.board() ].import(data,socket.id);});
-	socket.on("element_remove",function( data ){ BOARDS[ USERS[ IDS[socket.id] ].get.board() ].remove(data,socket.id); });
-	socket.on('verbinder_delete', function( data ){BOARDS[ USERS[ IDS[socket.id] ].get.board() ].verbinder_delete(socket.id,data); });	
-	
-	socket.on('username_set', function( data ){USERS[ IDS[socket.id] ].set.name(data);});
-	socket.on('id_set', function (old_id){
-		if (old_id == undefined) old_id = socket.id;
-		IDS[socket.id] = old_id;
-		
-		if (USERS[old_id]!= undefined){
-			USERS[old_id].set.sid(socket.id);
-			//delete USERS[socket.id];
-		}
-		
-		else{
-			USERS[old_id]= new USER(old_id,socket,socket.id);
-		}
-		socket.emit('id_set',old_id);
-	});
-
+	socket.on('freie_boards',  function(){ freie_boards(2,socket.id);});
 	socket.on('board_recover',function(url,pw){
 		if (url=="Anleitung"){
 			USERS[IDS[socket.id]].recover_board();	//recover old board
 		}
 		else USERS[IDS[socket.id]].boardchange(url,pw);	// connect to url
+		// reconnecting to presentation
+		informUser(socket.id,"presentation_reconnected");
 	});
-	// Sonstiges
-	socket.on('freie_boards',  function(){ freie_boards(2,socket.id);});
-	socket.on('messages_receive', function(bid){ 
-		if (bid == undefined){
-			bid = USERS[ IDS[socket.id] ].get.board();
-		}
-		if (BOARDS[bid] == undefined) return false;	// falls Eingabe Blödsinn
-		BOARDS[bid].send_messages(socket.id);
-	});
-	// browser-cache leeren ermöglichen
-	socket.on('last_boards_update', function( data ){ 
+	socket.on('last_boards_update', function( data ){ // browser-cache leeren ermöglichen
 		var deleted_lb=[];
 		for (var i=0; i< data.length;i++){
 			if (BOARDS[data[i]]== undefined){
 				deleted_lb.push(data[i]);
 			}
 		}
-		io.emit('last_boards_updated',deleted_lb);
+		informUser(socket.id,'last_boards_updated',deleted_lb);
 	});
+	socket.on('board_add',function(){
+		var bid = sha1( socket.id + new Date().getTime()).substr(3,16);
+		BOARDS[ bid ] = new BOARD(bid,"new",socket.id);
+	});	
 	
+	// -----------------------------------------------------------------
+	//Change Events
+	socket.on('background_set',function( back ){ BOARDS[ USERS[ IDS[socket.id] ].get.board() ].set.background( back, socket.id ); });
+	socket.on('bname_set',     function( data ){ BOARDS[ USERS[ IDS[socket.id] ].get.board() ].set.name(data,socket.id); });
+	socket.on('message_add',   function( data ){ BOARDS[ USERS[ IDS[socket.id] ].get.board() ].chat(data,socket.id);});
+	socket.on("element_change",function( data ){ BOARDS[ USERS[ IDS[socket.id] ].get.board() ].change(data,socket.id);});
+	socket.on("element_import",function( data ){ BOARDS[ USERS[ IDS[socket.id] ].get.board() ].import(data,socket.id);});
+	socket.on("element_remove",function( data ){ BOARDS[ USERS[ IDS[socket.id] ].get.board() ].remove(data,socket.id); });
+	socket.on('verbinder_delete', function( data ){BOARDS[ USERS[ IDS[socket.id] ].get.board() ].verbinder_delete(socket.id,data); });	
+
+	// -----------------------------------------------------------------	
+	// User Settings
+	socket.on('username_set', function( data ){USERS[ IDS[socket.id] ].set.name(data);});
+	socket.on('id_set', function (old){ id_set(old,socket.id);});
+
+	// -----------------------------------------------------------------
+	// Chat
+	socket.on('messages_receive', function(bid){ message_receive(bid,socket.id);});
+	
+	// -----------------------------------------------------------------
 	// Import
 	socket.on('div_read',function(){informUser(socket.id,'div_set');});	// nur Signal an Client
 
 	// -----------------------------------------------------------------
 	// public presentations
-	// -----------------------------------------------------------------
 	// Wenn keine Präsentation offen ist, so "false"
 	// Bei einer offenen Präsentation Array mit UIDs
-
-	socket.on('presentation_open',function(data){
-		var U = USERS[ IDS[socket.id]];
-	//	if ( U.get.rechte() < GUEST ) return false;
-		if (typeof data !=='boolean' ) return false;
-		var d = JSON.parse(data);
-		debug_log(2,"public_presentations ("+socket.id+"): "+ data);
-		if (d==true) {	
-			U.set.allow_followers();
-		} else { 
-			U.set.deny_followers();
-		}
-		informUser(socket.id,'followers',JSON.stringify( U.get.followers() ));
-		public_presentations(1);
-		debug_log(1,'op '+U.get.public_presentation() );
-	} );
+	socket.on('presentation_open',function(data,reconnect,snr){if (snr==undefined) snr=0; presentation_open(data,reconnect,snr,socket.id);});
 	socket.on("slide_show",function(bid,snr){ USERS[ IDS[socket.id]].set.slide(bid,snr); });
 	socket.on('presentation_connect',	 function( id ){ USERS[ IDS[socket.id] ].set.following( id );	});
 	socket.on('presentation_disconnect',function( id ){ USERS[ IDS[socket.id] ].set.following( false );	});
-
 	
+	// -----------------------------------------------------------------
+	// Debugging
+	socket.on("debug",function(data){informUser(socket.id,"debug",data);});
+		
 	
 	// -----------------------------------------------------------------
 	// interne Funktionen
+	// -----------------------------------------------------------------
+	
+	// ------------ presentation ---------------------------------------
 	function public_presentations(a){
 		var b = {};
-		for (var id in USERS) {
-			if ( USERS[id].get.public_presentation()===true) { 
-				b[id] = { board_id:USERS[id].get.board(), board_name: BOARDS[ USERS[id].get.board() ].get.name() };
+		for (var id in IDS) {
+			if ( USERS[IDS[id]].get.public_presentation()===true) { 
+				b[id] = { board_id:USERS[IDS[id]].get.board(), board_name: BOARDS[ USERS[IDS[id]].get.board() ].get.name() };
 			}
 		}
 		if ( a==1 ) {
@@ -518,6 +515,61 @@ io.sockets.on('connection', function(socket) {
 		}
 		debug_log(1,"public_presentations: "+ JSON.stringify(b));
 	}
+	// -----------------------------------------------------------------
+	function presentation_open(data,reconnect,snr,sid){
+	var U = USERS[ IDS[sid]];
+	//	if ( U.get.rechte() < GUEST ) return false;
+		if (typeof data !=='boolean' ) return false;
+		var d = JSON.parse(data);
+		debug_log(2,"public_presentations ("+sid+"): "+ data);
+		if (reconnect==undefined){
+			if (d==true) {	
+				U.set.allow_followers();
+			} else { 
+				U.set.deny_followers();
+			}
+		}
+		var f = U.get.followers();
+		if (f != false){
+			for (var i in f){
+				for (var s in IDS){
+					if (IDS[s]==f[i]){	
+						informUser(s,'following_set',sid);
+					}
+				}	
+			}
+		}
+		informUser(sid,'followers',JSON.stringify( U.get.followers() ));
+		public_presentations(1);
+		debug_log(1,'op '+U.get.public_presentation() );
+		// notiz an den client raussenden,damit der den slide zeigen und aufrufen kann.
+		if (reconnect != undefined){
+			informUser(sid, "presentation_reconnected",snr);
+		}	
+	}
+	// -----------------------------------------------------------------
+	// ------------------------- User ----------------------------------
+	function id_set(old,sid){
+		if (old == undefined) old = sid;
+		IDS[sid] = old;
+		
+		if (USERS[old]!= undefined){
+			USERS[old].set.sid(sid);
+		}else{
+			USERS[old]= new USER(old,socket,sid);
+		}
+		socket.emit('id_set',old);	
+	}
+	// -----------------------------------------------------------------
+	// ------------------------- Chat ----------------------------------
+	function message_receive(bid,sid){
+		if (bid == undefined){
+			bid = USERS[ IDS[sid] ].get.board();
+		}
+		if (BOARDS[bid] == undefined) return false;	// falls Eingabe Blödsinn
+		BOARDS[bid].send_messages(sid);	
+	}
+	// -----------------------------------------------------------------
 });
 
 
@@ -631,7 +683,7 @@ var BOARD = function (bid, data,uid){
 			GRID:		GRID
 		});
 		
-	};
+	}
 	//------------------------------------------------------------------
 	this.set = {};
 	//------------------------------------------------------------------
@@ -641,7 +693,7 @@ var BOARD = function (bid, data,uid){
 		freie_boards(1,uid);
 		CHANGED = new Date().getTime();
 		db_save_board( BID );	
-	};
+	}
 	//------------------------------------------------------------------
 	this.set.name = function (name, uid) {				
 		if ( USERS_here[ IDS[uid] ] < ADMIN ) return false;
@@ -656,7 +708,7 @@ var BOARD = function (bid, data,uid){
 			informUser(uid, 'board_renamed',{ id:BID,name:name} );
 		}
 		db_save_board( BID );
-	};
+	}
 	//------------------------------------------------------------------
 	this.set.password = function (a, p, uid) {			
 		if ( USERS_here[ IDS[uid] ] < ADMIN ) return false;
@@ -673,21 +725,21 @@ var BOARD = function (bid, data,uid){
 		}
 		CHANGED = new Date().getTime();	
 		db_save_board( BID );
-	};
+	}
 	//------------------------------------------------------------------
 	this.set.background = function (back, uid) {
 		if ( USERS_here[ IDS[uid] ] < NUTZER ) return false;
 		BACKGROUND = back;
 		CHANGED = new Date().getTime();	
 		informAllUsers('background_set',back);
-	};
+	}
 	//------------------------------------------------------------------
 	this.set.grid = function (dist, uid) {
 		if ( USERS_here[ IDS[uid] ] < NUTZER ) return false;
 		GRID = dist;
 		CHANGED = new Date().getTime();
 		informAllUsers("grid_set",dist);
-	};
+	}
 	// -----------------------------------------------------------------
 	// Users on board
 	// -----------------------------------------------------------------
@@ -706,12 +758,13 @@ var BOARD = function (bid, data,uid){
 			for (d in DIVS){ informUser(uid,'element_changed',DIVS[d] ); }
 		}	
 		B.send_messages(uid);
-		informUser(uid,'chat',{ zeit: new Date().getTime(), name:"Statusmitteilung", text: 'Boardwechsel zu Board "'+NAME+'"' });	
-		informUser(uid,'board_changed',BID,NAME,right,(slide==true) );
+		informUser(uid,'message_added',{ zeit: new Date().getTime(), name:"Statusmitteilung", text: 'Boardwechsel zu Board "'+NAME+'"' });	
+		//informUser(uid,'board_changed',BID,NAME,right,(slide==true) );
+		informUser(uid,'board_changed',BID,NAME,right,slide );
 		informUser(uid,'background_set',BACKGROUND );
 		informUser(uid,"grid_set",GRID);
 		B.show_users_on_board();
-	};
+	}
 	
 	// -----------------------------------------------------------------
 	this.disconnect = function(uid){
@@ -727,7 +780,7 @@ var BOARD = function (bid, data,uid){
 			}
 	//	}
 		B.show_users_on_board();
-	};
+	}
 	// -----------------------------------------------------------------
 	this.chat = function(data,uid){
 		if ( USERS_here[  IDS[uid]  ] < NUTZER )return false;
@@ -735,21 +788,21 @@ var BOARD = function (bid, data,uid){
 		if (MESSAGES == undefined){MESSAGES = {};};
 		//var nid = uid+new Date().getTime();
 		MESSAGES.push({ zeit: new Date().getTime(), name: data.name || USERS[IDS[uid]].get.name(), text: data.text });
-		informAllUsers('chat', { zeit: new Date().getTime(), name: data.name || USERS[IDS[uid]].get.name(), text: data.text },uid);
+		informAllUsers('message_added', { zeit: new Date().getTime(), name: data.name || USERS[IDS[uid]].get.name(), text: data.text },uid);
 		CHANGED = new Date().getTime();
-	};
+	}
 	this.send_messages = function(uid){
 		if ( USERS_here[  IDS[uid] ] < NUTZER )return false;
 		if (MESSAGES != undefined){
 			informUser(uid,'messages_received',MESSAGES);
 		}
-	};
+	}
 	// -----------------------------------------------------------------
 	this.show_users_on_board = function() {
 		var b = [];
 		for (var o in USERS_here  ) { b.push(o); }
 		//informAllAdmins('users_on_board', JSON.stringify(b) );	!!!
-	};
+	}
 	// -----------------------------------------------------------------
 	// Elements
 	// -----------------------------------------------------------------
@@ -761,7 +814,7 @@ var BOARD = function (bid, data,uid){
 		informAllUsers('element_removed',did,BID);
 		delete DIVS[ did ];
 		CHANGED = new Date().getTime();
-	};
+	}
 	// -----------------------------------------------------------------
 	// Change Element
 	// needs data, "s", "d" or "t" and USER-ID
@@ -795,7 +848,6 @@ var BOARD = function (bid, data,uid){
 			} else if ( d.blockiert == 0 && DIVS[ d.id ].blockiert == USERS[  IDS[uid]  ].get.sid()) {
 				d.blockiert = 0;
 			}
-			
 			/*if ( d.blockiert != 0 && DIVS[ d.id ].blockiert == 0 ) {
 				d.blockiert = USERS[  IDS[uid] ].get.name();
 			} else if ( d.blockiert == 0 && DIVS[ d.id ].blockiert == USERS[  IDS[uid]  ].get.name() ) {
@@ -808,14 +860,14 @@ var BOARD = function (bid, data,uid){
 		for (var i in d ) { DIVS[ d.id ][ i ] = d[ i ]; }
 		informAllUsers("element_changed",  d );
 		CHANGED = new Date().getTime();
-	};
+	}
 	// Delete Verbinder
 	this.verbinder_delete = function ( uid, vid){
 		var U = USERS[IDS[uid]];
 		if( USERS_here[ IDS[uid] ] <NUTZER) return false;
 		informAllUsers('verbinder_deleted',vid);
 		CHANGED = new Date().getTime();	
-	};
+	} 
 	// -----------------------------------------------------------------
 	// Copy Board
 	// -----------------------------------------------------------------
@@ -835,7 +887,7 @@ var BOARD = function (bid, data,uid){
 		BOARDS[ id ] = new BOARD(id,data,IDS[uid]);
 		db_board_add(id,B.get.save_data());
 		informUser(uid,'board_copied',id);
-	};
+	}
 	// -----------------------------------------------------------------
 	// delete Board
 	// -----------------------------------------------------------------
@@ -850,7 +902,7 @@ var BOARD = function (bid, data,uid){
 			}
 		}
 		freie_boards(1);
-	};
+	}
 	// -----------------------------------------------------------------
 	// Export / Import
 	// -----------------------------------------------------------------
@@ -868,7 +920,7 @@ var BOARD = function (bid, data,uid){
 		// Remove Locks
 		for (var i in b.DIVS) { b.DIVS.blockiert = 0; }
 		informUser(uid, 'board_exported',JSON.stringify( b ) );
-	};
+	}
 	
 	this.import = function (data, uid){
 		B.change(data,uid,1); 
@@ -884,12 +936,10 @@ var BOARD = function (bid, data,uid){
 	
 	// Statusmeldung board saved 	
 	this.save_notification = function (){
-		informAllUsers('chat', { zeit: new Date().getTime(), name:"Statusmitteilung", text: 'board saved!' });
-	};
+		informAllUsers('message_added', { zeit: new Date().getTime(), name:"Statusmitteilung", text: 'board saved!' });
+	}
 	// -----------------------------------------------------------------
 	// Helpers
-	// -----------------------------------------------------------------
-
 	// -----------------------------------------------------------------
 
 	// -----------------------------------------------------------------
@@ -915,7 +965,7 @@ var BOARD = function (bid, data,uid){
 			}
 		}
 	};
-};
+}
 
 // ---------------------------------------------------------------------
 // Helpers

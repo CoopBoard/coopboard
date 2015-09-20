@@ -58,8 +58,6 @@ var timeline = function( id ) {
 	});
 	
 	var verschieben_obj = $('<div class= "oben_links handle"><span>Verschieben</span></div>').appendTo( obj);
-	//var colors = [0,0,0];
-
 	
 	// -------------------------------------------------------------
 	// Positionsaenderung (linke obere Ecke)
@@ -85,7 +83,6 @@ var timeline = function( id ) {
 					});
 				}
 			},
-		//grid:[grid_distance,grid_distance],
 		drag: function( event, ui ) {
 			O.set.canvas();
 			if (grid_distance >0){
@@ -101,8 +98,6 @@ var timeline = function( id ) {
 		}
 	});		
 		
-	
-	
 	
 	// Neues Element als Milestone oder Jahreszahl an Leiste heften
 	$('<div class="unten_links handle"><span>Jahreszahl hinzufügen</span></div>') //TextÃƒÂ¤nderungsbeginn

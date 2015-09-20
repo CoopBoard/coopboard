@@ -15,7 +15,6 @@ var slide = function(id){
 			handle: ".oben_links",
 			start: function(e,u){ block( socket.id ); },
 			stop: function(e,u){emit(['pos']);block( 0 );},
-			//grid:[grid_distance,grid_distance],
 			drag: function( event, ui ) {
 				if (grid_distance > 0){
 					ui.position.top  = ui.position.top  - ui.position.top  % grid_distance;
@@ -30,7 +29,6 @@ var slide = function(id){
 					ui.size.height = ui.size.height - ui.size.height % grid_distance;
 				}
 			},
-			//grid:[grid_distance,grid_distance],
 			handles: 'se',
 			minWidth: 200,
 			minHeight:100,

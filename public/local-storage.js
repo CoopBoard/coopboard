@@ -120,6 +120,9 @@ $(document).ready(function(){
 
 
 
-function last_boards_update(){
-	socket.emit('last_boards_update',last_boards.boards);
+function last_boards_updated(data){
+	for (var i=0; i< data.length; i++){
+			last_boards.removeBoard(data[i]);
+			if (DEBUG < 4) console.log("soll gelöscht werden: "+data[i]);
+	}	
 }

@@ -6,22 +6,6 @@ var socket = io();
 // ---------------------------------------------------------------------
 
 // ------------------------ Board --------------------------------------
-function boardchange (new_board){	// Boardwechsel bei seitenaufruf 
-	$('#board>div.div').remove();
-	$('#board>div.zeitleiste').remove();
-	$('#board>canvas').remove();
-	$('#users_on_board').remove();
-	$('#slides').empty();
-	$('#texteingabe').remove();
-	$('#text').empty();
-	//chat
-	message_count=0;
-	messages = [];
-	all_divs = {};
-	if (DEBUG > 4) console.log(new_board);
-	socket.emit('board_change',new_board,last_boards.get_password(new_board) );	
-}
-
 function new_board ()				{ socket.emit('board_add'); }
 function copy_board()				{ socket.emit('board_copy');}
 function delete_board()				{ socket.emit('board_delete');}
@@ -34,9 +18,9 @@ function board_freigeben(a)			{ socket.emit("visibility_set",a); }
 function receive_messages(bid)		{ socket.emit("messages_receive",bid);}		//ggf um nachrichten eines boards auszutauschen
 
 // ---------------------- Praesentation --------------------------------
-function open_presentation(a)		{ socket.emit("presentation_open",a); }
-function follow_presentation(id) 	{ socket.emit("presentation_connect",id); }
-function show_slide(bid,snr)  		{ socket.emit("slide_show",bid,snr); }
+function open_presentation(a,reconnect,snr)	{ socket.emit("presentation_open",a,reconnect,snr); }
+function follow_presentation(id) 			{ socket.emit("presentation_connect",id); }
+function show_slide(bid,snr)  				{ socket.emit("slide_show",bid,snr); }
 
 // ---------------------------------------------------------------------
 // Passwortfunktionen
@@ -63,8 +47,7 @@ function set_passwd(gruppe,pw){
 }
 
 // Gitterabstand für Divs etc.
-function set_grid(val)
-{
+function set_grid(val){
 	document.getElementById("grid").innerHTML=val;
 	socket.emit("grid_set",val);
 }
@@ -124,181 +107,58 @@ function element_removed( id ){
 	delete all_divs[id]; // Objekt löschen	
 }
 
+// cache leeren
+function last_boards_update(){
+	socket.emit('last_boards_update',last_boards.boards);
+}
+
 // ---------------------------------------------------------------------
 // on-funktionen
 // ---------------------------------------------------------------------
 
 // ---------------------------- Board ----------------------------------
-socket.on('board_added',function(id){
-	if (DEBUG > 4) console.log(id+" ist nun verfügbar");
-	// Zum neuen Board wechseln
-	boardchange(id);
-});
+socket.on('board_added',	function( id )				{ board_added(id);			});
+socket.on('board_copied',	function( id )				{ boardchange(id);			});
+socket.on('board_deleted',	function(    )				{ board_deleted();			});
+socket.on('board_fehlt',	function(    )				{ board_fehlt();			});
+socket.on('freie_boards',	function(data)				{ freie_boards(data);		});			
+socket.on('special_boards',	function(data)				{ special_boards(data);	});	
+socket.on('board_changed',	function(id,name,recht,snr)	{ board_changed(id,name,recht,snr);});
+socket.on('board_exported', function(data)				{ board_exported(data);		});
+socket.on('board_renamed', 	function(data)				{ board_renamed(data);		});
 
-socket.on('board_copied',function(id){
-	socket.emit(boardchange(id));	
-});
+socket.on('users_on_board',	function(data)				{ users_on_board(data);		});
 
-socket.on('board_deleted',function(){
-	$('#board>div.div').remove();
-	$('#board>canvas').remove();
-	$('#board>div.zeitleiste').remove();
-	$('#users_on_board').remove();
-	$('#slides').empty();
-	$('#texteingabe').remove();
-	all_divs ={};
-	socket.emit('board_change',"Anleitung",last_boards.get_password("Anleitung") );	
-});
 
-socket.on('board_fehlt',function(){
-	// alert("Das gewünschte Board ist nicht verfügbar.");
-	console.log("Board nicht verfügbar.");
-	boardchange("Anleitung");
-});
+// ----------------------- Local storage -------------------------------
+// browser-cache leeren (local-storage.js)
+socket.on('last_boards_updated',function (data){ last_boards_updated(data);});
 
-socket.on('freie_boards',function(data){			// Linkliste erstellen und anzeigen
-	$('#boards>div').remove();
-	visible = 0;
-	for(var i =0; i <data.length; i++) {
-		if (data[i].name != "Impressum" && data[i].name != "Anleitung"){	// Special Boards nicht doppelt anzeigen
-			$("<div onclick= boardchange('"+data[i].id+"')>"+data[i].name+ " <span>"+data[i].id+"</span></div>").appendTo("#boards"); // boardwechsel durch click	
-		}								
-		if (data[i].id == current_board){			// eigenes Board sichtbar?
-			visible = 1;
-		}
-	}
-	set_visibility();
-});
-
-socket.on('special_boards',function(data){			// Linkliste erstellen und anzeigen
-	$('#special_boards>div').remove();
-	for(var i in data) {
-		$("<div onclick= boardchange('"+i+"')>"+data[i].NAME+ " </div>").appendTo("#special_boards"); // boardwechsel durch click	
-	}
-	
-});
-
-socket.on('board_changed',function(id,name,recht,snr){
-	$('input').val("");
-	current_board=id;
-	visible = 0;
-	board_list();
-	board_name=name;
-	last_boards.addBoard(id,name);
-	r=recht // nur zum debuggen spaeter entfernen !!!
-	$('body').attr('class','');
-	if ( recht == 3) 	$('body').attr('class','ADMIN NUTZER');
-	if ( recht == 2) 	$('body').attr('class','NUTZER');
-	if ( recht <  3)	$('#users_on_board').remove();
-	$('#chatelement').addClass('leiste');
-	mode_change('block');
-	$('#verschieben').css({left: -($('#board').width()-$('#fenster').width())/2, top: -($('#board').height()-$('#fenster').height())/2 });
-	if ( presentation.get.following() != false && snr != undefined) { presentation.show_slide(snr); }
-	last_boards_update();			// delete board, which not exists
-});
-
-socket.on('board_exported', function(data){
-	if (DEBUG <4) console.log(data);
-	download(data, new Date()+".json", "application/json");
-});
-
-socket.on('board_renamed', function(data){
-	var d=JSON.parse(data);
-	last_boards.renameBoard(d.id,d.name);
-});
-
-socket.on('users_on_board',function(data){
-	var d = JSON.parse(data);
-	if ( $('#users_on_board').length == 0 ) $("<div id='users_on_board'>Nutzer hier:</div>").appendTo('#settings_coop');
-	$('#users_on_board>span').remove();
-	for (var i in d) {
-		if ( i != socket.id ) $("<span class='info'>"+i+"</span>").appendTo('#users_on_board');
-	}
-});
-	// browser-cache leeren
-socket.on('last_boards_updated',function (data){
-	for (var i=0; i< data.length; i++){
-		if (data[i] != "Anleitung" && data[i]!= "Impressum"){
-			last_boards.removeBoard(data[i]);
-			if (DEBUG < 4) console.log("soll gelöscht werden: "+data[i]);
-		}
-	}
-});
 
 // ----------------------- Gitterabstand -------------------------------
-
-socket.on ('grid_set',function(dist){
-	grid_change(dist);
-});
+socket.on ('grid_set',function(dist){ grid_change(dist);});
 
 // ----------------------- background ----------------------------------
-socket.on('background_set',function(bild){
-	if (DEBUG>4) console.log(bild);
-	background=new _background(bild);
-	if ( bild[0]=="I" ) $('#input_background').val(bild.substr(1));
-});
+socket.on('background_set',function(data){ background_set(data);});
 
-// ------------------------ presentation ------------------------------
-socket.on('slide_shown',function(uid,bid,snr){
-	if (DEBUG >3) console.log('show_slide '+uid+" "+bid+" "+snr);
-	if ( uid != presentation.get.following() ) return false;
-	if ( bid != current_board ) { boardchange( bid ); return false; }
-	presentation.show_slide( snr );
-});
 
-socket.on('followers',function(data){
-	presentation.followers(data);
-});
+// ------------------------ presentation -------------------------------
+socket.on('slide_shown',			function(uid,bid,snr)		{ slide_shown(uid,bid,snr);});
+socket.on('followers',				function(data)				{ console.log(data);followers(data);});
+socket.on('public_presentations',	function( a  )				{ presentation.show_public_presentations(a);});
+socket.on('following',				function(bid,uid,snr,name)	{ following(bid,uid,snr,name);});
+socket.on('following_set',			function(uid)				{ following_set(uid);});
 
-socket.on('public_presentations',function(a){
-	presentation.show_public_presentations(a);
-});
+socket.on('presentation_reconnected',function(snr)				{presentation.show_slide(snr);});
 
-socket.on('following',function(bid,uid,snr,name){
-	if ( current_board != bid && bid !== false ) boardchange( bid );
-	if ( current_board == bid && bid !== false ) presentation.show_slide( snr );
-	if ( bid == false && presentation.get.following() !== false ) { presentation.follow_presentation(false); }
-});
-
-		// bei disconnect und reconnect die präsentation wiederaufnehmen!
-socket.on('disconnect', function (){
-	if (presentation.get.following() !== false){
-		alert('Master ist nicht erreichbar!');
-		
-		console.log(presentation.get.following());
-	}
-});
 // ------------------------- Chat --------------------------------------
 // neue einzelne Nachricht
-socket.on('chat', function (data,uid) {
-	stored_messages.push(data);
-	messages.push(data);
-	message_count++;
-	message_sort();
-	if (sound ==true){
-		if (data.name != "Statusmitteilung"&& uid != socket.id ) receive_audio.play();
-		else if (uid == socket.id) send_audio.play();
-	}
-});
-// Daten überschreiben bspw. neues Board
-socket.on('messages_received',function(data){
-	$('#text').empty();
-	chat_leiste.empty();
-	messages = data;
-	message_count=0;
-	if ($('#text').hasClass("chat")){
-		chat_switch();
-	}
-	message_sort();
-});
+socket.on('message_added',	 	function (data,uid) { message_added(data,uid);});
+socket.on('messages_received',	function (data)		{ messages_received(data);});
+
 
 // Username
-socket.on('username_set', function (data){ 
-	console.log("Name gesetzt: "+data);
-	identity.set_name(data);
-	NAME=data;
-	$('#chatname').val(NAME);
-});
+socket.on('username_set', 		function (data)		{ username_set(data);});
 
 
 // --------------------- slides update and delete -------------------- 
@@ -307,64 +167,24 @@ socket.on('element_removed', function(data) { element_removed(data); });
 
 
 // ---------------- div,slide,timeline import -------------------------------
-
-socket.on('div_setzen',function(){							// divs und folien übertragen
-	var tmp = anders.shift();
-	if (tmp == undefined){ 	// wenn kein weiteres element da, signal an server zum verbinder uebertragen
-		verbinder_setzen();
-	}
-	else if (tmp.id[0]=="d"){
-		socket.emit('div_import',JSON.stringify( {	// Divs zur veraederung an server senden
-			id:tmp.id,							// evtl. veraendern!
-			content:tmp.content,
-			pos:tmp.pos,
-			hoehe:tmp.hoehe,
-			breite:tmp.breite,
-			farbe:tmp.farbe,
-			textcolor:tmp.textcolor,
-			fontsize: tmp.fontsize,
-			canvas:tmp.canvas,
-			blockiert:0,
-			appendto: tmp.appendto
-		}));
-	}
-	else if(tmp.id[0]=="s"){
-		socket.emit('slide_import',JSON.stringify( {	// Slides zur veraenderung an server senden
-			id:tmp.id,
-			pos:tmp.pos,
-			hoehe:tmp.hoehe,
-			breite:tmp.breite,
-			blockiert:0
-		}));
-	}
-	socket.emit("divs_einlesen");
-});
-// Verbinder delete
-socket.on("verbinder_deleted",function (data){
-	$("#"+data).remove();
-});
+socket.on("verbinder_deleted",function (data){ $("#"+data).remove(); });
 
 // ---------------------- Eigene ID ------------------------------------
-socket.on('your_id', function (data) {
-	socket.id=data;
-});
+socket.on('your_id', function (data) { socket.id=data; });
+
 // ------------------- Create a new socket connection ------------------
 socket.on('connect', function() {
+	$('#board').css({
+				"transition":"none",
+				"transform-origin":"0 0 0",
+				"transform":"scale(1)",
+			});
+			
 	if (DEBUG <4) console.log("current_board: "+current_board);
 	users[ socket.id]={board:"Anleitung"};
 	if (current_board != undefined){			// Bugfix
 		boardchange(current_board);				// Ansonsten nach reconnect nicht aus serversicht auf board 1
 	}
-	// reconnect to following presentation
-	if (presentation_following_id!== false){
-		socket.emit("presentation_connect",presentation_following_id);
-	}
-	if (presentation_master == true){
-		presentation.open(undefined,'pm',slide_nr);	// Slidenummer noch sp
-	}
-	
-	
-
 	//name to server
 	NAME=identity.get_name();
 	if (NAME == "") NAME = 0;
@@ -376,25 +196,18 @@ socket.on('connect', function() {
 		identity.set_id(ID);
 	}
 		console.log("id_set: "+ID);
-		socket.emit('id_set',ID);
+		socket.emit('id_set',ID);	
 });
 
-socket.on("board_get",function(bid){
-	boardchange(bid);
-});
+socket.on("board_recovered",function(bid) {	board_recovered(bid); });
+socket.on('id_set',			function(data){ id_set(data);});
 
-socket.on('id_set',function(data){
-	//if (current_board == undefined){	// ansonsten letztes board wiederherstellen
-		var url = window.location.search.substring(1);
-		if (url=="") url="Anleitung";
-		console.log("url: "+url);
-		current_board=url;
-		socket.emit('board_recover',url,last_boards.get_password(url));	
-	//}
+// bei disconnect und reconnect die präsentation wiederaufnehmen!
+socket.on('disconnect', function (){
+	if (presentation.get.following() !== false){
+		alert('Master ist nicht erreichbar!');
+	}
 });
 
 // ----------------------- DEBUGGING -----------------------------------
-
-socket.on('debug', function(d1,d2,d3,d4){
-	console.log("debug: "+d1+" "+d2+" "+d3+" "+d4);
-});
+socket.on('debug', function(d1,d2,d3,d4){ console.log("debug: "+d1+" "+d2+" "+d3+" "+d4); });

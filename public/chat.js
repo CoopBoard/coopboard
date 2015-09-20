@@ -13,7 +13,7 @@ $('#sofort_antwort').hide();
 
 $(document).ready(function(){
 	chat();
-	$('#chatelement').click(function(){		// sonst switch bei click auf gesamten block
+	$('#chatelement').click2(function(){		// sonst switch bei click auf gesamten block
 		if($('#chatelement').hasClass('leiste')){
 			chat_switch();
 		}
@@ -56,7 +56,7 @@ function send_message(text){
 		}
 		$('#chat_input').val('');
 		$('#sofort_antwort').val('');
-		setTimeout(function(){socket.emit('chat', { name: NAME, text: text });}, 500);
+		setTimeout(function(){socket.emit('message_add', { name: NAME, text: text });}, 500);
 		
 	}
 }
@@ -109,13 +109,7 @@ function message_add(d){
 	if($('#chatelement').hasClass('chat')){
 		$('#text').scrollTop($('#text')[0].scrollHeight);	
 	}
-	//leiste weiterbewegen !!! in move()
-	/*else{
-		if (message_count>10){
-			message_delete();
-		}
-		$('#text').animate({'right':'0', 'left':'auto'},1);
-	}*/
+
 	message_count++;
 	
 	if (message_count>10){
@@ -134,8 +128,6 @@ function message_delete(b_change){
 		$('#text>div')[0].remove();
 		message_count--;
 		if (DEBUG >4)console.log("nachricht gelöscht");	
-	//	clearTimeout(delete_timeout);
-	//	var delete_timeout = setTimeout(function(){message_delete()},10);
 	}
 	if(b_change ==1 && message_count > 10 && $('#text').hasClass('leiste')){
 		$('#text>div')[0].remove();
@@ -215,3 +207,29 @@ function chat_switch(){
 	setTimeout(function(){ chat_switchblock=0; },100);
 	antwort_ausblenden();
 }
+
+
+// ---------------------------------------------------------------------
+function message_added(data,uid){ // einzelne nachricht im chat empfangen
+	stored_messages.push(data);
+	messages.push(data);
+	message_count++;
+	message_sort();
+	if (sound ==true){
+		if (data.name != "Statusmitteilung"&& uid != socket.id ) receive_audio.play();
+		else if (uid == socket.id) send_audio.play();
+	}	
+}
+
+function messages_received(data){ // Nachrichten Als "block" empfangen bspw. bei boardchange
+	$('#text').empty();
+	chat_leiste.empty();
+	messages = data;
+	message_count=0;
+	if ($('#text').hasClass("chat")){
+		chat_switch();
+	}
+	message_sort();	
+}
+
+

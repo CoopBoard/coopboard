@@ -82,21 +82,6 @@ function set_visibility(){
 		$('div.flipswitch').text($('div.flipswitch').data('on'));
 		$('div.flipswitch').toggleClass('off');
 	}
-	
-			/*if (wert==0 ) {
-			wert=1;
-			if ( $('div.flipswitch').text() == $('div.flipswitch').data('on') ){
-				$('div.flipswitch').toggleClass('off');
-				$('div.flipswitch').text($('div.flipswitch').data('off'));
-			}
-		} else if (wert ==1 ){
-			wert=0;
-			if( $('div.flipswitch').text() == $('div.flipswitch').data('off')){
-			$('div.flipswitch').text($('div.flipswitch').data('on'));
-			$('div.flipswitch').toggleClass('off');
-		}
-	}
-}*/
 }
 //----------------------- Block- or Slidemode
 function mode_change(mode){
@@ -126,6 +111,24 @@ function set_ruler(){
 // GItter am rand neu setzen
 }
 
+// -----------------------------------
+function username_set(data){
+	console.log("Name gesetzt: "+data);
+	identity.set_name(data);
+	NAME=data;
+	$('#chatname').val(NAME);
+}
+
+function id_set(data){
+	//if (current_board == undefined){	// ansonsten letztes board wiederherstellen
+		var url = window.location.search.substring(1);
+		if (url=="") url="Anleitung";
+		console.log("url: "+url);
+		current_board=url;
+		console.log("id wurde gesetzt; current board ist nun: "+current_board);
+		socket.emit('board_recover',url,last_boards.get_password(url));	
+	//}
+}
 
 (function($){
     $.fn.block = function(){
