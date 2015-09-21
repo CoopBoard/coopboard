@@ -2,9 +2,12 @@
 
 Coopboard is an interactiv Mindmap-tool build with Node.js and a lot of love build in.
 
+### DEMO
+[Official Demo](http://coopboard.net/)
+
 ### Testet on:
 
-Ubuntu 15.04 with Node v0.12.7 
+Ubuntu 15.04 with Node  v4.0.0
 
 ### Installation
 
