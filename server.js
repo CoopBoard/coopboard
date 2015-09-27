@@ -233,7 +233,7 @@ var USER = function(id,s,sid) {
 			_name = set_username();
 			if (_name==1){ _name=SID;}		// kein name -> socket.id 
 			NAMES[_name] = reconnectID;
-			return;
+			//return;
 		}else{	// name wird gesendet (cache oder via chat)
 			var gesetzt=0;
 			for (var name in NAMES){
