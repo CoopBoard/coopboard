@@ -23,7 +23,7 @@ $ git submodule init
 $ git submodule update
 $ npm install
 ```
-You can't use coopboard without a database, which is initialized using:
+You can't use Coopboard without a database, which is initialized using:
 ```sh
 $ node init_db.js
 ```
