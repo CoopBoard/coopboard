@@ -1,6 +1,6 @@
 # Coopboard
 
-Coopboard is an interactiv Mindmap-tool build with Node.js and a lot of love build in.
+Coopboard is an interactiv mindmap tool build with Node.js and a lot of love build in.
 
 ### DEMO
 [Official Demo](http://coopboard.net/)
@@ -11,11 +11,11 @@ Ubuntu 15.04 with Node  v4.0.0
 
 ### Installation
 
-You need Node installed on your system, check with:
+You need to install Node on your system, check with:
 ```sh 
 $ node -v
 ```
-Than you can do the following:
+Then you can do the following:
 ```sh
 $ git clone https://github.com/CoopBoard/coopboard coopboard
 $ cd coopboard
@@ -23,11 +23,11 @@ $ git submodule init
 $ git submodule update
 $ npm install
 ```
-In addition you need to initialize the datebase at first time:
+In addition to this, you need to initialize the database at the first time:
 ```sh
 $ node init_db.js
 ```
-To run the aktual server:
+To run the actual server:
 ```sh
 $ node server.js
 ```
