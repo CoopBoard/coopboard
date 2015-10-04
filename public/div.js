@@ -8,7 +8,7 @@ var div = function( id, leiste ) {
 	var canvas = {}; // Hier werden alle Verbindungen drin gespeichert
 	var O = this;
 	O.id = id;
-	var blocked = 0;
+	var blocked = {sid:0,name:0};
 	var clicked=false;
 	var TIMELINE = leiste;	// nur wenn div an timeline gekoppelt ist
 	// -----------------------------------------------------------------
@@ -19,7 +19,8 @@ var div = function( id, leiste ) {
 		return false;
 	}
 	// -----------------------------------------------------------------
-	var free = function () { if ( blocked == 0 || blocked == socket.id ) return true; return false };
+	var free = function () { if ( blocked.sid == 0 || blocked.sid == socket.id ) return true; return false };
+	//var free = function () { if ( blocked == 0 || blocked == NAME ) return true; return false };
 	var content 	   = "12345";		// Inhalt des Textfeldes
 	var obj        	   = $('<div class="obj" ><div class="block">In Arbeit ...</div></div>').appendTo('#board').addClass('div').attr('id',id);
 	var content_obj    = $("<div class='content'>"+content+"</div>").css({'overflow':'hidden'}).appendTo( obj );;
@@ -290,8 +291,8 @@ var div = function( id, leiste ) {
 					// Positionieren der Drehregler
 					var w=$(this).width();
 					$(this).children('div').each(function(i,o){
-						$(o).css({ display:"inline-block", position:"absolute", top: -($(o).width()-w)/2, left:-($(o).width()-w)/2});
-					});
+							$(o).css({ display:"inline-block", position:"absolute", top: -($(o).width()-w)/2, left:-($(o).width()-w)/2});
+						});
 				}
 			});
 		// -------------------------------------------------------------
@@ -389,7 +390,8 @@ var div = function( id, leiste ) {
 			return O; 
 		};
 		this.set.blockiert	= function (i) {
-			blocked = i;
+			//blocked = {sid:i,name:NAME};
+			blocked=i;
 			if ( free() ) {
 				obj.draggable('enable');
 				obj.resizable('enable');
@@ -399,7 +401,7 @@ var div = function( id, leiste ) {
 				obj.draggable({ disabled: true });
 				obj.resizable({ disabled: true });
 				obj.addClass('blocked');
-				obj.children('.block').text(i).spin();
+				obj.children('.block').text(blocked.name+" ("+blocked.sid+")").spin();
 			}
 			return this;
 		};
@@ -453,7 +455,8 @@ var div = function( id, leiste ) {
 		// -------------------------------------------------------------
 		// interne Funktionen
 		function block( id ){		//blockiert div
-			O.set.blockiert( id );
+			var i = {sid:id,name:NAME};
+			O.set.blockiert( i );
 			emit( ['blockiert'] );
 		}
 	// -----------------------------------------------------------------
@@ -548,19 +551,18 @@ function new_div(TIMELINE){
 	if (TIMELINE == undefined){
 		socket.emit('element_change',JSON.stringify( {
 			id:"d",
-			content:Base64.encode(""),
+			content:Base64.encode("Standardtext"),
 			pos:{ 
-				top:  Math.round((Math.round( (-$('#verschieben').position().top) +$(document).height()/2 ))/grid_distance)*grid_distance,
-				left: Math.round((Math.round( (-$('#verschieben').position().left)+$(window).width() /2 ))/grid_distance)*grid_distance
- 
+				top:  Math.round( -$('#verschieben').position().top +$(window).height()/2-50 ),
+				left: Math.round( -$('#verschieben').position().left+$(window).width() /2-100 )
 			},
-			hoehe:grid_distance*2,
-			breite:grid_distance*3,
+			hoehe:100,
+			breite:200,
 			farbe:[221,221,221],
 			textcolor:[0,0,0],
 			fontsize: 18,
 			canvas:{},
-			blockiert:0,
+			blockiert:{sid:0,name:0},
 		})
 		);
 	}
@@ -578,7 +580,7 @@ function new_div(TIMELINE){
 			textcolor:[0,0,255],
 			fontsize: 18,
 			canvas:{},
-			blockiert:0,
+			blockiert:{sid:0,name:0},
 			appendto: TIMELINE
 		})
 		);

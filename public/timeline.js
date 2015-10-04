@@ -13,7 +13,7 @@ var timeline = function( id ) {
 	
 	var O = this;
 	O.id = id;
-	var blocked = 0;
+	var blocked = {sid:0,name:0};
 	var clicked=false;
 
 	// -----------------------------------------------------------------
@@ -25,7 +25,7 @@ var timeline = function( id ) {
 	}
 	
 	// -----------------------------------------------------------------
-	var free = function () { if ( blocked == 0 || blocked == socket.id ) return true; return false };
+	var free = function () { if ( blocked.sid == 0 || blocked.sid == socket.id ) return true; return false };
 	var obj        	   = $('<div class="obj" ></div>')
 		.appendTo('#board')
 		.addClass('zeitleiste')
@@ -143,7 +143,7 @@ var timeline = function( id ) {
 			obj.draggable({ disabled: true });
 			obj.resizable({ disabled: true });
 			obj.addClass('blocked');
-			obj.children('.block').text(i).spin();
+			obj.children('.block').text(blocked.name+" ("+blocked.sid+")").spin();
 		}
 		return this;
 	};
@@ -257,7 +257,7 @@ function new_timeline(){
 		breite:500,
 		canvas:{},
 		contained_divs:{},	//divs die zur zeitleiste gehören
-		blockiert:0
+		blockiert:{sid:0,name:0}
 	  })
 	);
 }

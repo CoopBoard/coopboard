@@ -86,7 +86,7 @@ function element_changed(d) {
 	}
 	for (var i in d) {	
 		if (i != 'appendto')		// hier wird timeline übergeben... 
-			O.set[i](d[i]); 
+			O.set[i](d[i]); 		 
 	}
 }
 // ---------------------------------
@@ -185,10 +185,7 @@ socket.on('connect', function() {
 	if (current_board != undefined){			// Bugfix
 		boardchange(current_board);				// Ansonsten nach reconnect nicht aus serversicht auf board 1
 	}
-	//name to server
-	NAME=identity.get_name();
-	if (NAME == "") NAME = 0;
-	socket.emit('username_set',NAME);
+
 	// ID to server
 	ID = identity.get_id();
 	if (ID =="") {			// bei neuanlegung speichert server automatisch
@@ -197,6 +194,10 @@ socket.on('connect', function() {
 	}
 		console.log("id_set: "+ID);
 		socket.emit('id_set',ID);	
+	//name to server
+	NAME=identity.get_name();
+	if (NAME == "") NAME = 0;
+	socket.emit('username_set',NAME);
 });
 
 socket.on("board_recovered",function(bid) {	board_recovered(bid); });

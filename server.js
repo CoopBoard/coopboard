@@ -111,11 +111,11 @@ function db_read(){
 function db_save(){
 	var d = new Date().getTime();
 	for ( var id in BOARDS ){
-		if ( ( d - BOARDS[id].get.changed() ) <= db_interval ) {
+	//	if ( ( d - BOARDS[id].get.changed() ) <= db_interval ) {
 			db_save_board( id );
-		} else {
-			debug_log(1,'not saving board: '+id);
-		}
+	//	} else {
+	//		debug_log(1,'not saving board: '+id);
+	//	}
 	}
 }
 // ---------------------------------------------------------------------
@@ -358,7 +358,7 @@ var USER = function(id,s,sid) {
 	this.boardchange = function(bid,pw){
 		debug_log(2, SID+' altes Board: '+ _board );
 		debug_log(2,"Boardwechsel: "+SID+" ("+bid+")");
-
+		informUser(SID,"debug","name", _name);
 		// -------------------------------------------------------------
 		if ( BOARDS[ bid ] == undefined ){
 			informUser(SID,'board_fehlt');
@@ -646,7 +646,7 @@ var BOARD = function (bid, data,uid){
 	delete( D );
 	// unblock_elements
 	for ( var did in DIVS ) {
-		DIVS[ did ].blockiert = 0;
+		DIVS[ did ].blockiert = {sid:0, name:0};
 	}
 	// -----------------------------------------------------------------
 	if (NEW) {
@@ -773,9 +773,13 @@ var BOARD = function (bid, data,uid){
 		// unblock elements
 	//	if (USERS[  IDS[uid]  ] != undefined){
 			for ( var did in DIVS ) {
-				if ( DIVS[ did ].blockiert == USERS[  IDS[uid]  ].get.sid() ) {
-					DIVS[ did ].blockiert = 0;
-					informAllUsers('element_changed',{id:did,blockiert:0});
+				if (typeof(DIVS[did])=="object"){
+					if ( DIVS[ did ].blockiert == undefined ) DIVS[ did ].blockiert = {sid:0,name:0};
+					else if ( typeof(DIVS[ did ].blockiert) != 'object' || DIVS[ did ].blockiert == 0) DIVS[ did ].blockiert = {sid:0,name:0};
+					if ( DIVS[ did ].blockiert.sid == USERS[  IDS[uid]  ].get.sid() ) {
+						DIVS[ did ].blockiert = {sid:0, name:0};
+						informAllUsers('element_changed',{id:did,blockiert:{sid:0,name:0}});
+					}
 				}
 			}
 	//	}
@@ -840,13 +844,13 @@ var BOARD = function (bid, data,uid){
 		
 		if ( DIVS[ d.id] == undefined ) return false;
 		// Handle Blocking
-		if ( DIVS[ d.id ].blockiert == undefined ) DIVS[ d.id ].blockiert = 0;
+		if ( DIVS[ d.id ].blockiert == undefined || typeof(DIVS[ d.id ].blockiert) != 'object') DIVS[ d.id ].blockiert = {sid:0,name:0};
 		if ( d.blockiert != undefined ){
-			
-			if ( d.blockiert != 0 && DIVS[ d.id ].blockiert == 0 ) {
-				d.blockiert = USERS[  IDS[uid]  ].get.sid();
-			} else if ( d.blockiert == 0 && DIVS[ d.id ].blockiert == USERS[  IDS[uid]  ].get.sid()) {
-				d.blockiert = 0;
+			if(typeof(d.blockiert) != 'object' && d.blockiert  == 0) d.blockiert = {sid:0,name:0};
+			if ( d.blockiert.sid != 0 && DIVS[ d.id ].blockiert.sid == 0 ) {
+				d.blockiert = {sid:USERS[  IDS[uid]  ].get.sid(),name:USERS[  IDS[uid]  ].get.name()};
+			} else if ( d.blockiert.sid == 0 && DIVS[ d.id ].blockiert.sid == USERS[  IDS[uid]  ].get.sid()) {
+				d.blockiert = {sid:0,name:0};
 			}
 			/*if ( d.blockiert != 0 && DIVS[ d.id ].blockiert == 0 ) {
 				d.blockiert = USERS[  IDS[uid] ].get.name();
@@ -918,7 +922,7 @@ var BOARD = function (bid, data,uid){
 			CHANGED: CHANGED
 		};
 		// Remove Locks
-		for (var i in b.DIVS) { b.DIVS.blockiert = 0; }
+		for (var i in b.DIVS) { b.DIVS.blockiert = {"sid":0,"name":0}; }
 		informUser(uid, 'board_exported',JSON.stringify( b ) );
 	}
 	

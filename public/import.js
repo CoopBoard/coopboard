@@ -106,7 +106,7 @@ function set_all_divs( tmp_board){
 				textcolor:tmp.textcolor,
 				fontsize: tmp.fontsize,
 				canvas:tmp.canvas,
-				blockiert:0,
+				blockiert:{sid:0,name:0},
 				appendto: tmp.appendto
 			}));
 		}
@@ -117,23 +117,21 @@ function set_all_divs( tmp_board){
 				pos:tmp.pos,
 				hoehe:tmp.hoehe,
 				breite:tmp.breite,
-				blockiert:0
+				blockiert:{sid:0,name:0}
 			}));
 		}
 		else if(tmp.id[0]=="t"){	//timeline konstanten eingefügt
 			console.log('timeline_import');
 			socket.emit('element_import',JSON.stringify({
 				id:tmp.id,
-				content:tmp.content,
 				pos:tmp.pos,
-				hoehe:50,
 				breite:tmp.breite,
-				fontsize:18,
 				canvas:tmp.canvas,
 				contained_divs:tmp.contained_divs,
-				blockiert:0
+				blockiert:{sid:0,name:0}
 			}));
 		}
+		
 		
 		socket.emit("div_read");
 	});
