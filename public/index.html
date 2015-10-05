@@ -68,7 +68,7 @@
 			<div id="board"></div>
 		</div>
 		<div id="icons">
-			<button id="modechange" class="NUTZER" onclick="mode_change();">Block-/Folienmodus</button>
+			<button id="modechange" class="NUTZER">Block-/Folienmodus</button>
 			<button id ="new_slide" CLASS="NUTZER" onclick="new_slide();">Folie hinzufügen</button>
 			<button id="new_timeline" class="NUTZER">Neue Zeitleiste</button>
 			<button id="new_div" class="NUTZER">Neuer Block</button>
@@ -115,7 +115,7 @@
 	var sound = false;
 	var visible = 0;
 	var grid_distance = 40;
-	var NAME = 0;
+	var NAME;
 	var ID = 0;
 	
 	// soll private werden:
@@ -193,7 +193,11 @@
 						verbindungen_deletable();
 					}
 				});
-
+			
+			
+			// Modeswitch (blockmode/slidemode)
+			$('#modechange').click2(function(){	mode_change();});
+			
 			// ---------------------------------------------------------
 			// Zoom out and in
 			// ---------------------------------------------------------
