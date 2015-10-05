@@ -1,8 +1,8 @@
 	
 var slide = function(id){
 	var o = this;
-	var blockiert = 0;
-	var free = function () { if ( blockiert == 0 || blockiert == socket.id ) return true; return false };
+	var blockiert = {sid:0,name:0};
+	var free = function () { if ( blockiert.sid == 0 || blockiert.sid == socket.id ) return true; return false };
 	o.id=id;
 	var obj = $('<div><div class="handle oben_links"></div></div>')
 		.appendTo('#slides')
@@ -113,7 +113,7 @@ function new_slide(){
 		},
 		hoehe:480,
 		breite:640,
-		blockiert:0
+		blockiert:{sid:0,name:0}
 	  })
 	);
 }
