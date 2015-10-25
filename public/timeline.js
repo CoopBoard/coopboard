@@ -250,8 +250,8 @@ function new_timeline(){
 	socket.emit('element_change',JSON.stringify( {
 		id:"t",
 		pos:{ 
-				top:  Math.round((Math.round( (-$('#verschieben').position().top) +$(document).height()/2 ))/grid_distance)*grid_distance,
-				left: Math.round((Math.round( (-$('#verschieben').position().left)+$(window).width() /2 ))/grid_distance)*grid_distance
+			top:  Math.round((Math.round( (-$('#verschieben').position().top) +$(document).height()/2 ))/grid_distance)*grid_distance,
+			left: Math.round((Math.round( (-$('#verschieben').position().left)+$(window).width() /2 ))/grid_distance)*grid_distance
 		},
 		breite:grid_distance*5,
 		canvas:{},
