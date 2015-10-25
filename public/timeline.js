@@ -85,12 +85,11 @@ var timeline = function( id ) {
 			},
 		drag: function( event, ui ) {
 			O.set.canvas();
-			if (grid_distance >0){
+			if (grid_distance > 0){
 				ui.position.top  = ui.position.top  - ui.position.top  % grid_distance;
 				ui.position.left = ui.position.left - ui.position.left % grid_distance;
 			}
 		},
-		drag: function(e,u){ O.set.canvas(); },
 		stop: function(e,u){
 			$('#drop').remove();
 			emit(['pos']);
@@ -254,7 +253,7 @@ function new_timeline(){
 				top:  Math.round((Math.round( (-$('#verschieben').position().top) +$(document).height()/2 ))/grid_distance)*grid_distance,
 				left: Math.round((Math.round( (-$('#verschieben').position().left)+$(window).width() /2 ))/grid_distance)*grid_distance
 		},
-		breite:grid_distance*50,
+		breite:grid_distance*5,
 		canvas:{},
 		contained_divs:{},	//divs die zur zeitleiste gehören
 		blockiert:{sid:0,name:0}
