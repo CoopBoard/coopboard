@@ -251,10 +251,10 @@ function new_timeline(){
 	socket.emit('element_change',JSON.stringify( {
 		id:"t",
 		pos:{ 
-			top:  Math.round( -$('#verschieben').position().top +$(window).height()/2-50 ),
-			left: Math.round( -$('#verschieben').position().left+$(window).width() /2-100 )
+				top:  Math.round((Math.round( (-$('#verschieben').position().top) +$(document).height()/2 ))/grid_distance)*grid_distance,
+				left: Math.round((Math.round( (-$('#verschieben').position().left)+$(window).width() /2 ))/grid_distance)*grid_distance
 		},
-		breite:500,
+		breite:grid_distance*50,
 		canvas:{},
 		contained_divs:{},	//divs die zur zeitleiste gehören
 		blockiert:{sid:0,name:0}
