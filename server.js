@@ -422,7 +422,7 @@ io.sockets.on('connection', function(socket) {
 	public_presentations(1);
 	
 	// Statusmitteilung im Chat
-	informUser(socket.id,'message_added', { zeit: new Date().getTime(), name:"Statusmitteilung", text: 'Mit dem Server verbunden!' });	
+	informUser(socket.id,'message_added', { zeit: new Date().getTime(), name:"Statusmitteilung", text: 'Mit dem Server verbunden!' , is_system:true});	
 
 
 	// -----------------------------------------------------------------
@@ -758,7 +758,7 @@ var BOARD = function (bid, data,uid){
 			for (d in DIVS){ informUser(uid,'element_changed',DIVS[d] ); }
 		}	
 		B.send_messages(uid);
-		informUser(uid,'message_added',{ zeit: new Date().getTime(), name:"Statusmitteilung", text: 'Boardwechsel zu Board "'+NAME+'"' });	
+		informUser(uid,'message_added',{ zeit: new Date().getTime(), name:"Statusmitteilung", text: 'Boardwechsel zu Board "'+NAME+'"' , is_system:true});	
 		//informUser(uid,'board_changed',BID,NAME,right,(slide==true) );
 		informUser(uid,'board_changed',BID,NAME,right,slide );
 		informUser(uid,'background_set',BACKGROUND );
@@ -940,7 +940,7 @@ var BOARD = function (bid, data,uid){
 	
 	// Statusmeldung board saved 	
 	this.save_notification = function (){
-		informAllUsers('message_added', { zeit: new Date().getTime(), name:"Statusmitteilung", text: 'board saved!' });
+		informAllUsers('message_added', { zeit: new Date().getTime(), name:"Statusmitteilung", text: 'board saved!' , is_system:true});
 	}
 	// -----------------------------------------------------------------
 	// Helpers
