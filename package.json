@@ -13,6 +13,11 @@
 		"sqlite3": "*",
 		"express": "*",
 		"socket.io":"*",
-		"sha1":"*"
+		"sha1":"*",
+		"fs":"*"
+	},
+	"scripts": {
+    		"postinstall": "node init_db.js"
 	}
+
 }
