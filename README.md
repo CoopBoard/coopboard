@@ -3,7 +3,7 @@
 Coopboard is an interactiv mindmap tool build with Node.js and a lot of love build in.
 
 ### DEMO
-[Official Demo](http://coopboard.net/)
+[Official Demo](http://demo.coopboard.net/)
 
 ### Testet on:
 
